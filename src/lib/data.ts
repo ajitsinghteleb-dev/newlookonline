@@ -9,10 +9,13 @@ import {
   doc,
   getDoc,
   Firestore,
+  Query,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase-server';
 import type { ContentItem, ContentType, SEO_Metadata, Region } from './types';
 import { cache } from 'react';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 // This is a simplified in-memory "database".
 // In a real application, this would be a connection to Firestore,
@@ -21,6 +24,15 @@ import { cache } from 'react';
 const getDb = cache(() => {
   return db;
 });
+
+interface InternalQuery extends Query<DocumentData> {
+  _query: {
+    path: {
+      canonicalString(): string;
+      toString(): string;
+    };
+  };
+}
 
 const COLLECTION_NAMES: Record<ContentType, string> = {
   news: 'news_articles',
@@ -121,8 +133,20 @@ export const getLatestContent = async (
   const fetchLatest = async (type: ContentType, dateField: string) => {
     const collectionName = COLLECTION_NAMES[type];
     const q = query(collection(db, collectionName), orderBy(dateField, 'desc'), limit(count));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => docToContentItem(doc, type));
+    try {
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => docToContentItem(doc, type));
+    } catch (error: any) {
+        if (error.code === 'permission-denied') {
+            const path = (q as unknown as InternalQuery)._query.path.canonicalString();
+            const contextualError = new FirestorePermissionError({
+                operation: 'list',
+                path: path,
+            });
+            errorEmitter.emit('permission-error', contextualError);
+        }
+        throw error;
+    }
   }
 
   const [news, jobs, tenders] = await Promise.all([

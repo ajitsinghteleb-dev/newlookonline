@@ -13,6 +13,7 @@ import Image from 'next/image';
 import heroImage from '@/lib/hero-image.json';
 import { SeedDataButton } from '@/components/seed-data-button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 function HeroSection() {
   return (
@@ -95,6 +96,7 @@ function ContentSection({
 
 export default function HomePage() {
   const { firestore } = useFirebase();
+  const { toast } = useToast();
   const [content, setContent] = useState<{
     news: ContentItem[];
     jobs: ContentItem[];
@@ -106,13 +108,23 @@ export default function HomePage() {
     if (firestore) {
       const fetchContent = async () => {
         setIsLoading(true);
-        const latestContent = await getLatestContent(firestore, 3);
-        setContent(latestContent);
-        setIsLoading(false);
+        try {
+          const latestContent = await getLatestContent(firestore, 3);
+          setContent(latestContent);
+        } catch (error) {
+          console.error("Failed to fetch latest content:", error);
+          toast({
+            variant: "destructive",
+            title: "Error fetching content",
+            description: "Could not load latest news, jobs, and tenders. Please check your connection and permissions.",
+          });
+        } finally {
+          setIsLoading(false);
+        }
       };
       fetchContent();
     }
-  }, [firestore]);
+  }, [firestore, toast]);
 
   return (
     <div>
