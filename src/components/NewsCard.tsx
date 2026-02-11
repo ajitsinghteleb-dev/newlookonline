@@ -1,5 +1,6 @@
 "use client";
 import { useLanguage } from "@/context/LanguageContext";
+import Link from "next/link";
 
 interface NewsProps {
   item: any;
@@ -21,11 +22,11 @@ export default function NewsCard({ item }: NewsProps) {
           </span>
         </div>
         
-        <a href={item.source_link || item.link} target="_blank" rel="noopener noreferrer">
+        <Link href={`/news/${item.urlSlug}`}>
           <h3 className="text-lg font-bold leading-tight mb-2 group-hover:text-red-600 transition-colors">
             {isHindi ? item.headline_hi : item.title}
           </h3>
-        </a>
+        </Link>
         
         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">
           {isHindi ? item.summary_hi : item.summary}
@@ -34,9 +35,9 @@ export default function NewsCard({ item }: NewsProps) {
       
       <div className="p-5 pt-0 mt-auto">
         <div className="flex items-center justify-between">
-          <a href={item.source_link || item.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold border-b-2 border-red-600 pb-0.5">
+          <Link href={`/news/${item.urlSlug}`} className="text-xs font-bold border-b-2 border-red-600 pb-0.5">
             {isHindi ? "और पढ़ें" : "Read More"}
-          </a>
+          </Link>
           <div className="flex gap-1">
             {item.hashtags?.slice(0, 2).map((tag: string) => (
               <span key={tag} className="text-[10px] text-gray-400">{tag}</span>

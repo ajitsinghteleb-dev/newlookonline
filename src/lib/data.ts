@@ -1,4 +1,5 @@
 import { getFirestoreAdmin } from '@/lib/firebase-server';
+import type { NewsArticle } from './types';
 
 export async function getAllContent(): Promise<{ type: string; seo: { url_slug: string }; date: Date }[]> {
     const adminDb = getFirestoreAdmin();
@@ -8,23 +9,62 @@ export async function getAllContent(): Promise<{ type: string; seo: { url_slug: 
         const newsSnap = await adminDb.collection('news').get();
         newsSnap.forEach(doc => {
             const data = doc.data();
-            content.push({ type: 'news', seo: { url_slug: data.urlSlug || doc.id }, date: data.timestamp?.toDate() || new Date() });
+            if (data.urlSlug) {
+              content.push({ type: 'news', seo: { url_slug: data.urlSlug }, date: data.timestamp?.toDate() || new Date() });
+            }
         });
 
         const jobsSnap = await adminDb.collection('jobs').get();
         jobsSnap.forEach(doc => {
             const data = doc.data();
-            content.push({ type: 'jobs', seo: { url_slug: data.urlSlug || doc.id }, date: data.posted_at?.toDate() || new Date() });
+            if (data.urlSlug) {
+              content.push({ type: 'jobs', seo: { url_slug: data.urlSlug }, date: data.posted_at?.toDate() || new Date() });
+            }
         });
 
         const tendersSnap = await adminDb.collection('tenders').get();
         tendersSnap.forEach(doc => {
             const data = doc.data();
-            content.push({ type: 'tenders', seo: { url_slug: data.urlSlug || doc.id }, date: data.closingDate?.toDate() || new Date() });
+             if (data.urlSlug) {
+              content.push({ type: 'tenders', seo: { url_slug: data.urlSlug }, date: data.closingDate?.toDate() || new Date() });
+            }
         });
     } catch (error) {
         console.error("Error fetching all content for sitemap:", error);
     }
     
     return content;
+}
+
+export async function getAllNewsSlugs(): Promise<{ slug: string }[]> {
+    const adminDb = getFirestoreAdmin();
+    const slugs: { slug: string }[] = [];
+    try {
+        const newsSnap = await adminDb.collection('news').select('urlSlug').get();
+        newsSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.urlSlug) {
+                slugs.push({ slug: data.urlSlug });
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching news slugs:", error);
+    }
+    return slugs;
+}
+
+export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
+    const adminDb = getFirestoreAdmin();
+    try {
+        const querySnapshot = await adminDb.collection('news').where('urlSlug', '==', slug).limit(1).get();
+        if (querySnapshot.empty) {
+            console.warn(`No news article found for slug: ${slug}`);
+            return null;
+        }
+        const doc = querySnapshot.docs[0];
+        return { id: doc.id, ...doc.data() } as NewsArticle;
+    } catch (error) {
+        console.error(`Error fetching news by slug ${slug}:`, error);
+        return null;
+    }
 }
