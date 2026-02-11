@@ -11,7 +11,7 @@ import heroImage from '@/lib/hero-image.json';
 
 function HeroSection() {
   return (
-    <section className="relative w-full h-[50vh] md:h-[60vh] text-white">
+    <section className="relative w-full h-[60vh] md:h-[70vh] text-white">
       <Image
         src={heroImage.imageUrl}
         alt={heroImage.description}
@@ -20,23 +20,23 @@ function HeroSection() {
         priority
         data-ai-hint={heroImage.imageHint}
       />
-      <div className="absolute inset-0 bg-black/50" />
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-        <h1 className="text-4xl md:text-6xl font-headline font-bold drop-shadow-lg">
-          LookOnline Global
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+      <div className="relative z-10 flex flex-col items-center justify-end h-full text-center px-4 pb-16 md:pb-24">
+        <h1 className="text-4xl md:text-6xl font-headline font-bold drop-shadow-lg leading-tight">
+          The Future of Information is Here
         </h1>
-        <p className="mt-4 text-lg md:text-2xl max-w-3xl drop-shadow-md">
-          Your automated portal for the latest News, Jobs, and Tenders worldwide.
+        <p className="mt-4 text-lg md:text-2xl max-w-3xl text-muted-foreground drop-shadow-md">
+          LookOnline Global: Your AI-powered nexus for real-time News, strategic Career opportunities, and global Tenders.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-            <Link href="/news">
-              <Newspaper className="mr-2 h-5 w-5" /> Explore News
+            <Link href="/categories">
+              <Newspaper className="mr-2 h-5 w-5" /> Explore Categories
             </Link>
           </Button>
           <Button asChild size="lg" variant="secondary">
             <Link href="/jobs">
-              <Briefcase className="mr-2 h-5 w-5" /> Find Jobs
+              <Briefcase className="mr-2 h-5 w-5" /> Find Careers
             </Link>
           </Button>
         </div>
