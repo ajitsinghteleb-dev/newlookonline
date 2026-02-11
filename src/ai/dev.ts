@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/implement-dynamic-schema-markup.ts';
+import '@/ai/flows/generate-seo-metadata.ts';
