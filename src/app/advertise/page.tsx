@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth, useFirebaseApp } from '@/firebase';
+import { useUser, useFirebaseApp } from '@/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
@@ -27,7 +27,7 @@ type AdFormValues = z.infer<typeof adFormSchema>;
 
 export default function AdvertisePage() {
   const { toast } = useToast();
-  const { user, isUserLoading } = useAuth();
+  const { user, isUserLoading } = useUser();
   const app = useFirebaseApp();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);

@@ -10,7 +10,6 @@ const APP_NAME = 'LookOnline Global';
 const APP_DESCRIPTION = 'Fully Automated News, Job & Tender Portal with Autonomous SEO.';
 
 export const metadata: Metadata = {
-  manifest: '/manifest.json',
   title: {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#dc2626',
+  themeColor: '#FFFFFF',
 };
 
 export default function RootLayout({
@@ -52,7 +51,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -69,7 +67,7 @@ export default function RootLayout({
             <FirebaseClientProvider>
               <AuthProvider>
                 <Navbar />
-                <main className="min-h-screen bg-white dark:bg-gray-950 text-black dark:text-white transition-colors duration-300">
+                <main className="min-h-screen bg-background text-foreground">
                   {children}
                 </main>
                 <Toaster />
