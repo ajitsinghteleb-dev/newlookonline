@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildResume, BuildResumeOutput } from '@/ai/flows/build-resume';
-import { Loader2, Sparkles, Wand2 } from 'lucide-react';
+import { Loader2, Sparkles, Wand2, Download } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
+
 
 export default function ResumeBuilderPage() {
   const [experience, setExperience] = useState('');
@@ -14,6 +16,7 @@ export default function ResumeBuilderPage() {
   const [result, setResult] = useState<BuildResumeOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async () => {
     if (!experience.trim() || !role.trim()) {
@@ -34,6 +37,20 @@ export default function ResumeBuilderPage() {
       setIsLoading(false);
     }
   };
+  
+  const handleDownload = () => {
+    if (resultsRef.current) {
+        const opt = {
+            margin:       0.5,
+            filename:     'lookonline-ai-resume.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().from(resultsRef.current).set(opt).save();
+    }
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -84,35 +101,41 @@ export default function ResumeBuilderPage() {
 
         {result && (
           <div className="mt-12 space-y-10">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Polished Bullet Points</CardTitle>
-                <CardDescription>Action-oriented points using the STAR method, ready for your resume.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-3 text-foreground/90">
-                  {result.polishedPoints.map((point, index) => (
-                    <li key={index}>{point}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+             <div ref={resultsRef}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>AI Polished Bullet Points</CardTitle>
+                    <CardDescription>Action-oriented points using the STAR method, ready for your resume.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc list-inside space-y-3 text-foreground/90">
+                      {result.polishedPoints.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Suggested Keywords for 2026</CardTitle>
-                <CardDescription>Include these trending keywords to pass through ATS scans.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-3">
-                  {result.suggestedKeywords.map((keyword, index) => (
-                    <span key={index} className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                <Card className="mt-10">
+                  <CardHeader>
+                    <CardTitle>Suggested Keywords for 2026</CardTitle>
+                    <CardDescription>Include these trending keywords to pass through ATS scans.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-3">
+                      {result.suggestedKeywords.map((keyword, index) => (
+                        <span key={index} className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+            <Button onClick={handleDownload} variant="outline" className="w-full">
+                <Download className="mr-2 h-4 w-4" /> Download as PDF
+            </Button>
           </div>
         )}
       </div>

@@ -13,8 +13,9 @@ import { useAuth, useFirebaseApp } from '@/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { Loader2, UploadCloud } from 'lucide-react';
+import { Loader2, UploadCloud, QrCode } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const adFormSchema = z.object({
   businessName: z.string().min(2, { message: 'Business name must be at least 2 characters.' }),
@@ -95,7 +96,8 @@ export default function AdvertisePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="max-w-2xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div>
         <Card>
           <CardHeader>
             <CardTitle>Advertise with Us</CardTitle>
@@ -156,6 +158,28 @@ export default function AdvertisePage() {
             </Form>
           </CardContent>
         </Card>
+        </div>
+        <div className="flex flex-col items-center justify-center">
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><QrCode /> Pay with UPI</CardTitle>
+                    <CardDescription>Scan the code below with any UPI app.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center gap-4">
+                    <Image 
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=lookonline@oksbi&pn=LookOnline%20Global"
+                        alt="UPI QR Code for lookonline@oksbi"
+                        width={250}
+                        height={250}
+                        className="rounded-lg border p-2"
+                        unoptimized
+                    />
+                    <p className="font-mono text-muted-foreground bg-muted px-4 py-2 rounded-lg text-sm">
+                        lookonline@oksbi
+                    </p>
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
