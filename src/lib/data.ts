@@ -1,32 +1,16 @@
 import { getFirestoreAdmin } from '@/lib/firebase-server';
 import type { NewsArticle } from './types';
 
-export async function getAllContent(): Promise<{ type: string; seo: { url_slug: string }; date: Date }[]> {
+export async function getAllContent(): Promise<{ type: string; url_slug: string; date: Date }[]> {
     const adminDb = getFirestoreAdmin();
-    const content: { type: string; seo: { url_slug: string }; date: Date }[] = [];
+    const content: { type: string; url_slug: string; date: Date }[] = [];
     
     try {
-        const newsSnap = await adminDb.collection('news').get();
+        const newsSnap = await adminDb.collection('news').orderBy('timestamp', 'desc').get();
         newsSnap.forEach(doc => {
             const data = doc.data();
-            if (data.urlSlug) {
-              content.push({ type: 'news', seo: { url_slug: data.urlSlug }, date: data.timestamp?.toDate() || new Date() });
-            }
-        });
-
-        const jobsSnap = await adminDb.collection('jobs').get();
-        jobsSnap.forEach(doc => {
-            const data = doc.data();
-            if (data.urlSlug) {
-              content.push({ type: 'jobs', seo: { url_slug: data.urlSlug }, date: data.posted_at?.toDate() || new Date() });
-            }
-        });
-
-        const tendersSnap = await adminDb.collection('tenders').get();
-        tendersSnap.forEach(doc => {
-            const data = doc.data();
-             if (data.urlSlug) {
-              content.push({ type: 'tenders', seo: { url_slug: data.urlSlug }, date: data.closingDate?.toDate() || new Date() });
+            if (data.urlSlug && data.timestamp) {
+              content.push({ type: 'news', url_slug: data.urlSlug, date: data.timestamp.toDate() });
             }
         });
     } catch (error) {

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     </url>
     ${content.map(item => `
     <url>
-        <loc>${baseUrl}/${item.type}/${item.seo.url_slug}</loc>
+        <loc>${baseUrl}/${item.type}/${item.url_slug}</loc>
         <lastmod>${new Date(item.date).toISOString()}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
