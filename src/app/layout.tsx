@@ -35,12 +35,13 @@ export const metadata: Metadata = {
     title: APP_NAME,
     description: APP_DESCRIPTION,
   },
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#FFFFFF',
+  themeColor: '#dc2626',
 };
 
 export default function RootLayout({
