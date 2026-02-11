@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/components/Navbar';
-import { Footer } from '@/components/layout/footer';
-import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase';
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 const APP_NAME = 'LookOnline Global';
 const APP_DESCRIPTION = 'Fully Automated News, Job & Tender Portal with Autonomous SEO.';
@@ -64,20 +63,18 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body
-        className={cn(
-          'min-h-screen bg-background font-sans antialiased',
-          'flex flex-col'
-        )}
-      >
-        <FirebaseClientProvider>
-          <AuthProvider>
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-            <Toaster />
-          </AuthProvider>
-        </FirebaseClientProvider>
+      <body>
+          <LanguageProvider>
+            <FirebaseClientProvider>
+              <AuthProvider>
+                <Navbar />
+                <main className="min-h-screen bg-white dark:bg-gray-950 text-black dark:text-white transition-colors duration-300">
+                  {children}
+                </main>
+                <Toaster />
+              </AuthProvider>
+            </FirebaseClientProvider>
+          </LanguageProvider>
       </body>
     </html>
   );

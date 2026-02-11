@@ -1,51 +1,48 @@
 "use client";
-import { useEffect, useState } from 'react';
-import ShareButtons from './ShareButtons';
-import { formatDistanceToNow } from 'date-fns';
-import { Badge } from './ui/badge';
+import { useLanguage } from "@/context/LanguageContext";
 
-export default function NewsCard({ title, headline_hi, summary, summary_hi, category, link, timestamp, credibilityScore }: any) {
-  const [showHindi, setShowHindi] = useState(false);
+interface NewsProps {
+  item: any;
+}
 
-  useEffect(() => {
-    const storedLang = localStorage.getItem('app_lang') || 'en';
-    setShowHindi(storedLang === "hi");
-  }, []);
-  
-  const timeAgo = timestamp ? formatDistanceToNow(new Date(timestamp.seconds * 1000), { addSuffix: true }) : 'Just now';
-  
-  const getCredibilityColor = (score: number) => {
-    if (score > 0.8) return 'bg-green-200 text-green-800 dark:bg-green-900/50 dark:text-green-300';
-    if (score > 0.6) return 'bg-yellow-200 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
-    return 'bg-red-200 text-red-800 dark:bg-red-900/50 dark:text-red-300';
-  }
+export default function NewsCard({ item }: NewsProps) {
+  const { lang } = useLanguage();
+  const isHindi = lang === "hi";
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col group">
+    <div className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
       <div className="p-5 flex-grow">
-        <div className="flex justify-between items-center mb-2">
-            <Badge variant="secondary" className="text-xs uppercase tracking-wider">{category}</Badge>
-            {credibilityScore && (
-                <Badge variant="outline" className={`text-xs font-medium ${getCredibilityColor(credibilityScore)}`}>
-                    Credibility: {(credibilityScore * 100).toFixed(0)}%
-                </Badge>
-            )}
+        <div className="flex items-center justify-between mb-3">
+          <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded">
+            {item.category}
+          </span>
+          <span className="text-[10px] text-gray-400">
+            {new Date(item.timestamp?.seconds * 1000).toLocaleDateString()}
+          </span>
         </div>
-        <a href={link} target="_blank" rel="noopener noreferrer">
-          <h3 className="text-lg font-bold mt-2 text-foreground group-hover:text-primary transition-colors">
-            {showHindi && headline_hi ? headline_hi : title}
+        
+        <a href={item.source_link || item.link} target="_blank" rel="noopener noreferrer">
+          <h3 className="text-lg font-bold leading-tight mb-2 group-hover:text-red-600 transition-colors">
+            {isHindi ? item.headline_hi : item.title}
           </h3>
         </a>
-        <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
-          {showHindi && summary_hi ? summary_hi : summary}
+        
+        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">
+          {isHindi ? item.summary_hi : item.summary}
         </p>
       </div>
       
-      <div className="px-5 py-3 bg-background/50 border-t flex justify-between items-center">
-        <span className="text-xs text-muted-foreground">
-          {timeAgo}
-        </span>
-        <ShareButtons title={title} url={link || '#'} />
+      <div className="p-5 pt-0 mt-auto">
+        <div className="flex items-center justify-between">
+          <a href={item.source_link || item.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold border-b-2 border-red-600 pb-0.5">
+            {isHindi ? "और पढ़ें" : "Read More"}
+          </a>
+          <div className="flex gap-1">
+            {item.hashtags?.slice(0, 2).map((tag: string) => (
+              <span key={tag} className="text-[10px] text-gray-400">{tag}</span>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
