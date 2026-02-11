@@ -1,0 +1,135 @@
+/**
+ * CORE PHILOSOPHY
+ * This ruleset secures an automated content aggregation portal. The core security
+ * model is to make content collections (news, jobs, tenders) globally readable
+ * by any client, including unauthenticated users, while completely prohibiting
+ * direct writes from any client. All data creation and modification for these
+ * collections is expected to be performed by a trusted backend service using the
+ * Firebase Admin SDK, which bypasses these security rules.
+ *
+ * DATA STRUCTURE
+ * The data is organized into flat, top-level collections based on content type:
+ * - /news_articles/{newsArticleId}
+ * - /job_postings/{jobPostingId}
+ * - /tenders/{tenderId}
+ * A special collection, /admin_settings, contains a single document 'config'
+ * for controlling the backend automation.
+ *
+ * KEY SECURITY DECISIONS
+ * - Public Read, No Client Write: The main content collections are public-read
+ *   to serve the web portal. All client-side write operations are explicitly
+ *   denied (`if false;`) to ensure data integrity, enforcing a backend-only
+ *   write pattern.
+ * - Admin-Only Configuration: Access to the `/admin_settings/config` document
+ *   is strictly limited to authenticated users with an 'admin' custom claim
+ *   on their auth token. This provides a secure way for administrators to manage
+ *   system behavior (e.g., using a kill switch) without exposing settings.
+ * - No User Data: There are no user-specific collections or documents, simplifying
+ *   the rules and eliminating concerns about user data privacy or ownership.
+ *
+ * DENORMALIZATION FOR AUTHORIZATION
+ * This ruleset uses Firebase Authentication Custom Claims for role-based access
+ * control. An `admin: true` claim is denormalized onto an administrator's auth
+ * token. This allows for simple, performant, and secure role checks (`isAdmin()`)
+ * without needing to read any documents from Firestore for the authorization decision.
+ *
+ * STRUCTURAL SEGREGATION
+ * The data model uses strong structural segregation. Publicly readable content
+ * is kept in separate collections from the highly restricted administrative
+ * settings. This separation creates a clear security boundary and simplifies the
+ * rules for each path.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if the user has an 'admin' custom claim.
+     * To set a custom claim, use the Firebase Admin SDK on a trusted server:
+     * `admin.auth().setCustomUserClaims(uid, { admin: true });`
+     */
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // -------------------------------------------------------------------------
+    // Content Collections (Public Read-Only)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read news
+     *   articles. All write operations are disabled to ensure data is only
+     *   added by the trusted backend service.
+     * @path /news_articles/{newsArticleId}
+     * @allow (get) An anonymous user can fetch a single news article.
+     * @deny (create) An authenticated user cannot create a new article document.
+     * @principle Public read access for content, with writes locked down to a trusted backend.
+     */
+    match /news_articles/{newsArticleId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read job
+     *   postings. All write operations are disabled to ensure data is only
+     *   added by the trusted backend service.
+     * @path /job_postings/{jobPostingId}
+     * @allow (list) Any client can query the collection of job postings.
+     * @deny (update) An authenticated user cannot modify an existing job posting.
+     * @principle Public read access for content, with writes locked down to a trusted backend.
+     */
+    match /job_postings/{jobPostingId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read tenders.
+     *   All write operations are disabled to ensure data is only added by the
+     *   trusted backend service.
+     * @path /tenders/{tenderId}
+     * @allow (get) An anonymous user can fetch a single tender document.
+     * @deny (delete) An authenticated user cannot delete a tender document.
+     * @principle Public read access for content, with writes locked down to a trusted backend.
+     */
+    match /tenders/{tenderId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Administrative Settings (Admin-Only)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Restricts all access to the global configuration document
+     *   to users with an administrative role, identified by a custom claim.
+     * @path /admin_settings/config
+     * @allow (update) An admin user (auth.token.admin == true) can update the config document.
+     * @deny (get) A regular signed-in user cannot read the configuration.
+     * @deny (update) A non-admin user cannot change the 'automationActive' flag.
+     * @principle Role-based access control using custom claims for sensitive settings.
+     */
+    match /admin_settings/config {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+  }
+}

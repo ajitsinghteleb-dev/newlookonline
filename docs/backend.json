@@ -1,0 +1,299 @@
+{
+  "entities": {
+    "NewsArticle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NewsArticle",
+      "type": "object",
+      "description": "Represents a news article fetched and processed by the system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the NewsArticle entity."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region the news article pertains to (e.g., US, IN, Global)."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the news article."
+        },
+        "content": {
+          "type": "string",
+          "description": "The main content of the news article."
+        },
+        "urlSlug": {
+          "type": "string",
+          "description": "URL-friendly slug for the news article."
+        },
+        "metaTitle": {
+          "type": "string",
+          "description": "Meta title for SEO optimization."
+        },
+        "metaDescription": {
+          "type": "string",
+          "description": "Meta description for SEO optimization."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Relevant tags for the news article.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the featured image for the news article."
+        },
+        "imageAltText": {
+          "type": "string",
+          "description": "Alternative text for the featured image."
+        },
+        "publishedAt": {
+          "type": "string",
+          "description": "Timestamp of when the news article was published.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "region",
+        "title",
+        "content",
+        "urlSlug",
+        "metaTitle",
+        "metaDescription",
+        "tags",
+        "imageUrl",
+        "imageAltText",
+        "publishedAt"
+      ]
+    },
+    "JobPosting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "JobPosting",
+      "type": "object",
+      "description": "Represents a job posting scraped from various job APIs.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the JobPosting entity."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region the job posting is relevant to (e.g., US, IN)."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the job posting."
+        },
+        "company": {
+          "type": "string",
+          "description": "The company offering the job."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the job."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the job responsibilities and requirements."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL to the original job posting."
+        },
+        "salary": {
+          "type": "string",
+          "description": "Salary information for the job (can be a range or specific number)."
+        },
+        "postedDate": {
+          "type": "string",
+          "description": "The date the job was posted.",
+          "format": "date-time"
+        },
+        "metaTitle": {
+          "type": "string",
+          "description": "Meta title for SEO optimization."
+        },
+        "metaDescription": {
+          "type": "string",
+          "description": "Meta description for SEO optimization."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Relevant tags for the job posting.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "region",
+        "title",
+        "company",
+        "location",
+        "description",
+        "url",
+        "salary",
+        "postedDate",
+        "metaTitle",
+        "metaDescription",
+        "tags"
+      ]
+    },
+    "Tender": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Tender",
+      "type": "object",
+      "description": "Represents a tender opportunity scraped from open tender portals.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Tender entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the tender."
+        },
+        "organization": {
+          "type": "string",
+          "description": "The organization issuing the tender."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the tender requirements and scope."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL to the original tender document."
+        },
+        "closingDate": {
+          "type": "string",
+          "description": "The closing date for submitting the tender.",
+          "format": "date-time"
+        },
+        "metaTitle": {
+          "type": "string",
+          "description": "Meta title for SEO optimization."
+        },
+        "metaDescription": {
+          "type": "string",
+          "description": "Meta description for SEO optimization."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Relevant tags for the tender.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "organization",
+        "description",
+        "url",
+        "closingDate",
+        "metaTitle",
+        "metaDescription",
+        "tags"
+      ]
+    },
+    "AdminSettings": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AdminSettings",
+      "type": "object",
+      "description": "Represents the configuration settings controlled by the administrator.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AdminSettings entity. Should be 'config'."
+        },
+        "automationActive": {
+          "type": "boolean",
+          "description": "A kill switch to globally enable or disable the automated processes (news, jobs, tenders). True to enable, false to disable."
+        },
+        "plagiarismThreshold": {
+          "type": "number",
+          "description": "The plagiarism score threshold. If a scraped content's plagiarism score exceeds this value, it will be discarded and rewritten."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/news_articles/{newsArticleId}",
+        "definition": {
+          "entityName": "NewsArticle",
+          "schema": {
+            "$ref": "#/backend/entities/NewsArticle"
+          },
+          "description": "Stores news articles. Includes fields like 'region', 'title', 'content', 'urlSlug', 'metaTitle', 'metaDescription', 'tags', 'imageUrl', 'imageAltText', and 'publishedAt'.  This collection is globally accessible for reading, but write access is restricted to authorized backend processes.",
+          "params": [
+            {
+              "name": "newsArticleId",
+              "description": "Unique identifier for the news article."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/job_postings/{jobPostingId}",
+        "definition": {
+          "entityName": "JobPosting",
+          "schema": {
+            "$ref": "#/backend/entities/JobPosting"
+          },
+          "description": "Stores job postings. Includes fields like 'region', 'title', 'company', 'location', 'description', 'url', 'salary', 'postedDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes.",
+          "params": [
+            {
+              "name": "jobPostingId",
+              "description": "Unique identifier for the job posting."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tenders/{tenderId}",
+        "definition": {
+          "entityName": "Tender",
+          "schema": {
+            "$ref": "#/backend/entities/Tender"
+          },
+          "description": "Stores tenders. Includes fields like 'title', 'organization', 'description', 'url', 'closingDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes.",
+          "params": [
+            {
+              "name": "tenderId",
+              "description": "Unique identifier for the tender."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/admin_settings/config",
+        "definition": {
+          "entityName": "AdminSettings",
+          "schema": {
+            "$ref": "#/backend/entities/AdminSettings"
+          },
+          "description": "Stores global admin settings such as 'automationActive' and 'plagiarismThreshold'. This document controls the overall behavior of the automated system and can only be modified by authorized administrators.",
+          "params": []
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support a fully automated news, job, and tender aggregation portal with autonomous SEO, named LookOnline Global. The structure prioritizes authorization independence, clarity, and scalability. It uses structural segregation to ensure that each collection has a homogeneous security posture. Critically, it denormalizes authorization data to avoid `get()` calls in security rules. This design facilitates QAPs by segregating data based on type and region, allowing for secure list operations. The admin settings are stored in a dedicated document, allowing for a simple kill switch mechanism."
+  }
+}
