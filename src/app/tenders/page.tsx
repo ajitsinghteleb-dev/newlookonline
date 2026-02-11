@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { db } from '@/firebase/client';
+import { db } from '@/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import Link from 'next/link';
 import { format } from 'date-fns';
