@@ -1,3 +1,4 @@
+
 // src/app/api/cron/route.ts
 import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
@@ -11,7 +12,7 @@ const parser = new Parser();
 
 const NEWS_SOURCES = [
     {url: "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en", region: "IN"},
-    {url: "https://feeds.feedburner.com/TechCrunch/", region: "GLOBAL"}
+    {url: "https://news.google.com/rss/search?q=technology&hl=en-IN&gl=IN&ceid=IN:en", region: "GLOBAL"}
 ];
 
 export async function GET() {
