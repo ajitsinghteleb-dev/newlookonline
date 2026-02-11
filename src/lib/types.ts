@@ -13,6 +13,7 @@ export interface NewsArticle {
     status: "published" | "draft";
     urlSlug: string;
     credibilityScore: number;
+    hashtags: string[];
 }
 
 export interface JobPosting {

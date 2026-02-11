@@ -6,11 +6,9 @@ import { Badge } from './ui/badge';
 
 export default function NewsCard({ title, headline_hi, summary, summary_hi, category, link, timestamp, credibilityScore }: any) {
   const [showHindi, setShowHindi] = useState(false);
-  const [lang, setLang] = useState('en');
 
   useEffect(() => {
     const storedLang = localStorage.getItem('app_lang') || 'en';
-    setLang(storedLang);
     setShowHindi(storedLang === "hi");
   }, []);
   
@@ -23,28 +21,28 @@ export default function NewsCard({ title, headline_hi, summary, summary_hi, cate
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col group">
       <div className="p-5 flex-grow">
-        <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-red-600 dark:text-red-500 uppercase tracking-wider">{category}</span>
+        <div className="flex justify-between items-center mb-2">
+            <Badge variant="secondary" className="text-xs uppercase tracking-wider">{category}</Badge>
             {credibilityScore && (
-                <Badge variant="outline" className={`text-xs ${getCredibilityColor(credibilityScore)}`}>
+                <Badge variant="outline" className={`text-xs font-medium ${getCredibilityColor(credibilityScore)}`}>
                     Credibility: {(credibilityScore * 100).toFixed(0)}%
                 </Badge>
             )}
         </div>
         <a href={link} target="_blank" rel="noopener noreferrer">
-          <h3 className="text-lg font-bold mt-2 text-gray-900 dark:text-white hover:text-red-600 dark:hover:text-red-500 transition-colors">
+          <h3 className="text-lg font-bold mt-2 text-foreground group-hover:text-primary transition-colors">
             {showHindi && headline_hi ? headline_hi : title}
           </h3>
         </a>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-3">
+        <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
           {showHindi && summary_hi ? summary_hi : summary}
         </p>
       </div>
       
-      <div className="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 border-t dark:border-gray-700 flex justify-between items-center">
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="px-5 py-3 bg-background/50 border-t flex justify-between items-center">
+        <span className="text-xs text-muted-foreground">
           {timeAgo}
         </span>
         <ShareButtons title={title} url={link || '#'} />

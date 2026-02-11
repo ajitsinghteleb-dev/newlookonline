@@ -19,12 +19,13 @@ export type ProcessNewsArticleInput = z.infer<typeof ProcessNewsArticleInputSche
 
 const ProcessNewsArticleOutputSchema = z.object({
     category: z.enum(["World", "Business", "Tech", "Politics", "Sports", "Entertainment", "Other"]).describe('Categorize the news into one of the given categories.'),
-    headline: z.string().describe('A catchy, rewritten headline for the article.'),
+    headline: z.string().describe('A catchy, rewritten headline for the article in English.'),
     headline_hi: z.string().describe('The rewritten headline, translated into Hindi.'),
-    summary: z.string().describe('A 100-word summary of the article.'),
+    summary: z.string().describe('A 100-word summary of the article in English.'),
     summary_hi: z.string().describe('The 100-word summary, translated into Hindi.'),
     url_slug: z.string().describe('A clean, SEO-friendly, English URL slug for the article.'),
     credibilityScore: z.number().describe('A credibility score from 0.0 to 1.0 based on the source and content.'),
+    hashtags: z.array(z.string()).describe('An array of 5 relevant hashtags for social media.'),
 });
 export type ProcessNewsArticleOutput = z.infer<typeof ProcessNewsArticleOutputSchema>;
 
@@ -37,22 +38,31 @@ const prompt = ai.definePrompt({
   input: {schema: ProcessNewsArticleInputSchema},
   output: {schema: ProcessNewsArticleOutputSchema},
   prompt: `
-    Act as a Senior Editor for a fast-paced global news portal.
-    You will be given the original title and summary of a news article.
-    Your tasks are:
-    1. Categorize the article into one of the following: "World", "Business", "Tech", "Politics", "Sports", "Entertainment", "Other".
-    2. Rewrite the headline to be catchy, engaging, and SEO-friendly.
-    3. Translate the new, rewritten headline into standard, formal Hindi.
-    4. Generate a concise and compelling summary of about 100 words in English.
-    5. Translate the new English summary into standard, formal Hindi.
-    6. Generate a clean, SEO-friendly, English URL slug for the article.
-    7. Provide a credibility score from 0.0 (very untrustworthy) to 1.0 (very trustworthy) based on the likely reliability of the content.
+    Act as a senior professional news editor for 'LookOnline'. 
+    I will provide a raw news headline and snippet.
+    
+    RAW DATA:
+    Headline: {{{title}}}
+    Snippet: {{{summary}}}
+    
+    TASK:
+    1. Humanize: Rewrite the headline and a 100-word summary in a neutral, professional, human-like tone. Avoid AI-sounding words like 'delve', 'unveiled', or 'testament'.
+    2. Translate: Provide the exact same rewritten headline and summary in Hindi.
+    3. Categorize: Assign one category (Politics, Tech, Business, Jobs, Sports, World, Entertainment, Other).
+    4. SEO: Create a URL-friendly slug and 5 relevant hashtags.
+    5. Credibility: Provide a credibility score from 0.0 (very untrustworthy) to 1.0 (very trustworthy) based on the likely reliability of the content.
 
-    ORIGINAL SOURCE:
-    Title: {{{title}}}
-    Summary: {{{summary}}}
-
-    Generate a valid JSON object as output.
+    OUTPUT FORMAT (Strict JSON):
+    {{
+        "headline": "...",
+        "summary": "...",
+        "headline_hi": "...",
+        "summary_hi": "...",
+        "category": "...",
+        "url_slug": "...",
+        "credibilityScore": 0.0,
+        "hashtags": ["#tag1", "#tag2"]
+    }}
     `,
 });
 
