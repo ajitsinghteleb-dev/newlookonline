@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { db } from '@/firebase';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import NewsCard from '@/components/NewsCard';
+import AdComponent from '@/components/AdComponent';
 
 export default function Home() {
   const [news, setNews] = useState<any[]>([]);
@@ -42,11 +43,7 @@ export default function Home() {
           {news.map((item, i) => (
             <div key={item.id}>
               <NewsCard {...item} />
-              {(i + 1) % 6 === 0 && (
-                <div className="my-6 bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 rounded-lg h-48 flex items-center justify-center text-gray-400">
-                  AdSense Space
-                </div>
-              )}
+              {(i + 1) % 6 === 0 && <AdComponent />}
             </div>
           ))}
         </div>
