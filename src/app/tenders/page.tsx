@@ -1,3 +1,4 @@
+
 "use client";
 import { useEffect, useState } from 'react';
 import { db } from '@/firebase';
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ExternalLink, IndianRupee, Search } from 'lucide-react';
 
 export default function TendersPage() {
   const [tenders, setTenders] = useState<Tender[]>([]);
@@ -49,14 +51,15 @@ export default function TendersPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold dark:text-white">Tenders</h1>
-        <div className="w-full max-w-sm">
-          <Input
-            placeholder="Search by title or organization..."
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-black">Active <span className="text-red-600">Tenders</span></h1>
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Input 
+            placeholder="Search by Agency or Project..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-card"
+            className="pl-10 pr-4 py-2 bg-card"
           />
         </div>
       </div>
@@ -68,9 +71,9 @@ export default function TendersPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Organization</TableHead>
-                <TableHead>Value</TableHead>
+                <TableHead>Tender Details</TableHead>
+                <TableHead>Agency</TableHead>
+                <TableHead>Est. Value</TableHead>
                 <TableHead>Closing Date</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -79,20 +82,25 @@ export default function TendersPage() {
               {filteredTenders.length > 0 ? (
                 filteredTenders.map(tender => (
                   <TableRow key={tender.id}>
-                    <TableCell className="font-medium">{tender.title}</TableCell>
-                    <TableCell>{tender.organization}</TableCell>
+                    <TableCell className="font-medium">
+                      <p className="font-bold line-clamp-1">{tender.title}</p>
+                      <p className="text-[10px] text-gray-400 mt-1">Ref: {tender.id.slice(0,8)}</p>
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-600 dark:text-gray-400">{tender.organization}</TableCell>
                     <TableCell>
                         {tender.tenderValue ? (
-                             <Badge variant="secondary">{tender.tenderValue}</Badge>
+                             <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                                <IndianRupee size={12} /> {tender.tenderValue}
+                             </Badge>
                         ) : <span className="text-muted-foreground">N/A</span>}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                         {tender.closingDate ? format(new Date(tender.closingDate.seconds * 1000), 'PPP') : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button asChild size="sm">
-                        <a href={tender.url || '#'} target="_blank" rel="noopener noreferrer">
-                          View
+                      <Button asChild size="sm" variant="ghost" className="text-red-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <a href={tender.url || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                          View <ExternalLink size={14} />
                         </a>
                       </Button>
                     </TableCell>
@@ -101,7 +109,7 @@ export default function TendersPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center">
-                    No tenders found.
+                    No tenders found matching your search.
                   </TableCell>
                 </TableRow>
               )}
