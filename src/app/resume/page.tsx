@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildResume, BuildResumeOutput } from '@/ai/flows/build-resume';
@@ -9,13 +10,14 @@ import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 
 export default function ResumeBuilderPage() {
   const [experience, setExperience] = useState('');
+  const [role, setRole] = useState('');
   const [result, setResult] = useState<BuildResumeOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
-    if (!experience.trim()) {
-      setError('Please enter your experience first.');
+    if (!experience.trim() || !role.trim()) {
+      setError('Please enter your experience and target role.');
       return;
     }
     setIsLoading(true);
@@ -23,7 +25,7 @@ export default function ResumeBuilderPage() {
     setResult(null);
 
     try {
-      const aiResponse = await buildResume({ experience });
+      const aiResponse = await buildResume({ experience, targetRole: role });
       setResult(aiResponse);
     } catch (e) {
       console.error(e);
@@ -51,7 +53,13 @@ export default function ResumeBuilderPage() {
               Paste your job description, daily tasks, or accomplishments below.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+             <Input
+              placeholder="Target Role (e.g., Software Engineer)"
+              className="bg-background"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            />
             <Textarea
               placeholder="e.g., Managed a team of 5 engineers, responsible for the company's main product..."
               className="min-h-[200px] text-base bg-background"
@@ -62,9 +70,9 @@ export default function ResumeBuilderPage() {
           <CardFooter>
             <Button onClick={handleSubmit} disabled={isLoading} size="lg">
               {isLoading ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Optimizing for ATS...</>
               ) : (
-                <><Sparkles className="mr-2 h-4 w-4" /> Enhance with AI</>
+                <><Sparkles className="mr-2 h-4 w-4" /> Optimize with AI</>
               )}
             </Button>
           </CardFooter>
@@ -78,12 +86,12 @@ export default function ResumeBuilderPage() {
           <div className="mt-12 space-y-10">
             <Card>
               <CardHeader>
-                <CardTitle>Professional Bullet Points</CardTitle>
-                <CardDescription>Action-oriented points ready for your resume.</CardDescription>
+                <CardTitle>AI Polished Bullet Points</CardTitle>
+                <CardDescription>Action-oriented points using the STAR method, ready for your resume.</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="list-disc list-inside space-y-3 text-foreground/90">
-                  {result.bulletPoints.map((point, index) => (
+                  {result.polishedPoints.map((point, index) => (
                     <li key={index}>{point}</li>
                   ))}
                 </ul>
@@ -92,12 +100,12 @@ export default function ResumeBuilderPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Suggested Keywords</CardTitle>
+                <CardTitle>Suggested Keywords for 2026</CardTitle>
                 <CardDescription>Include these trending keywords to pass through ATS scans.</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  {result.trendingKeywords.map((keyword, index) => (
+                  {result.suggestedKeywords.map((keyword, index) => (
                     <span key={index} className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium">
                       {keyword}
                     </span>

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import type { JobPosting } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { calculateJobMatch } from '@/lib/matching';
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
@@ -28,25 +29,7 @@ export default function JobsPage() {
     fetchJobs();
   }, []);
 
-  const calculateMatch = (jobSkills: string[] | undefined): number => {
-    if (!jobSkills || jobSkills.length === 0 || !userSkills.trim()) {
-      return 0;
-    }
-    const userSkillSet = new Set(userSkills.toLowerCase().split(',').map(s => s.trim()).filter(Boolean));
-    if (userSkillSet.size === 0) return 0;
-    
-    const jobSkillSet = new Set(jobSkills.map(s => s.toLowerCase()));
-    
-    let matchCount = 0;
-    for (const skill of userSkillSet) {
-        if (jobSkillSet.has(skill)) {
-            matchCount++;
-        }
-    }
-    
-    return Math.round((matchCount / jobSkillSet.size) * 100);
-  };
-
+  const userSkillList = userSkills.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -60,7 +43,7 @@ export default function JobsPage() {
           <CardTitle className="text-lg">Find Your Match</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-2 text-sm">Enter your skills to see how you match with job requirements.</p>
+          <p className="text-muted-foreground mb-2 text-sm">Enter your skills (comma-separated) to see how you match with job requirements.</p>
           <Input 
             placeholder="e.g., react, nodejs, python, sql" 
             value={userSkills}
@@ -75,7 +58,7 @@ export default function JobsPage() {
       {!loading && (
         <div className="grid gap-4">
           {jobs.map(job => {
-            const matchPercentage = calculateMatch(job.skills);
+            const matchPercentage = calculateJobMatch(userSkillList, job.skills || []);
             return (
                 <div key={job.id} className="bg-card p-6 rounded-lg shadow-md border flex justify-between items-start">
                   <div>
