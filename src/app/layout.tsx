@@ -1,15 +1,17 @@
 import type { Metadata, Viewport } from 'next';
 import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/layout/header';
+import Navbar from '@/components/Navbar';
 import { Footer } from '@/components/layout/footer';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase';
+import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 
 const APP_NAME = 'LookOnline Global';
 const APP_DESCRIPTION = 'Fully Automated News, Job & Tender Portal with Autonomous SEO.';
 
 export const metadata: Metadata = {
+  manifest: '/manifest.json',
   title: {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#020817',
+  themeColor: '#dc2626',
 };
 
 export default function RootLayout({
@@ -64,15 +66,17 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          'min-h-screen bg-background font-body antialiased',
+          'min-h-screen bg-background font-sans antialiased',
           'flex flex-col'
         )}
       >
         <FirebaseClientProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <Toaster />
+          <AuthProvider>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <Toaster />
+          </AuthProvider>
         </FirebaseClientProvider>
       </body>
     </html>

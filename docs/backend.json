@@ -6,62 +6,52 @@
       "type": "object",
       "description": "Represents a news article fetched and processed by the system.",
       "properties": {
-        "region": {
-          "type": "string",
-          "description": "The region the news article pertains to (e.g., US, IN, Global)."
-        },
         "title": {
           "type": "string",
           "description": "The title of the news article."
         },
-        "content": {
+        "headline_hi": {
           "type": "string",
-          "description": "The main content of the news article."
+          "description": "The title of the news article translated into Hindi."
         },
-        "urlSlug": {
+        "summary": {
           "type": "string",
-          "description": "URL-friendly slug for the news article."
+          "description": "A short summary of the news article."
         },
-        "metaTitle": {
+        "category": {
           "type": "string",
-          "description": "Meta title for SEO optimization."
+          "description": "The category of the news article (e.g., World, Business, Tech)."
         },
-        "metaDescription": {
+        "region": {
           "type": "string",
-          "description": "Meta description for SEO optimization."
+          "description": "The region the news article pertains to (e.g., US, IN, Global)."
         },
-        "tags": {
-          "type": "array",
-          "description": "Relevant tags for the news article.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "imageUrl": {
+        "link": {
           "type": "string",
-          "description": "URL of the featured image for the news article."
+          "description": "URL to the original source of the news article."
         },
-        "imageAltText": {
-          "type": "string",
-          "description": "Alternative text for the featured image."
-        },
-        "publishedAt": {
+        "timestamp": {
           "type": "string",
           "description": "Timestamp of when the news article was published.",
           "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "published",
+            "draft"
+          ],
+          "description": "The publication status of the article."
         }
       },
       "required": [
-        "region",
         "title",
-        "content",
-        "urlSlug",
-        "metaTitle",
-        "metaDescription",
-        "tags",
-        "imageUrl",
-        "imageAltText",
-        "publishedAt"
+        "summary",
+        "category",
+        "region",
+        "link",
+        "timestamp",
+        "status"
       ]
     },
     "JobPosting": {
@@ -70,10 +60,6 @@
       "type": "object",
       "description": "Represents a job posting scraped from various job APIs.",
       "properties": {
-        "region": {
-          "type": "string",
-          "description": "The region the job posting is relevant to (e.g., US, IN)."
-        },
         "title": {
           "type": "string",
           "description": "The title of the job posting."
@@ -82,55 +68,31 @@
           "type": "string",
           "description": "The company offering the job."
         },
-        "location": {
+        "source": {
           "type": "string",
-          "description": "The location of the job."
+          "description": "The source of the job posting (e.g., External, Internal)."
         },
-        "description": {
-          "type": "string",
-          "description": "Detailed description of the job responsibilities and requirements."
-        },
-        "url": {
+        "link": {
           "type": "string",
           "description": "URL to the original job posting."
         },
-        "salary": {
-          "type": "string",
-          "description": "Salary information for the job (can be a range or specific number)."
-        },
-        "postedDate": {
+        "posted_at": {
           "type": "string",
           "description": "The date the job was posted.",
           "format": "date-time"
         },
-        "metaTitle": {
-          "type": "string",
-          "description": "Meta title for SEO optimization."
-        },
-        "metaDescription": {
-          "type": "string",
-          "description": "Meta description for SEO optimization."
-        },
-        "tags": {
-          "type": "array",
-          "description": "Relevant tags for the job posting.",
-          "items": {
-            "type": "string"
-          }
+        "is_active": {
+          "type": "boolean",
+          "description": "Whether the job posting is currently active."
         }
       },
       "required": [
-        "region",
         "title",
         "company",
-        "location",
-        "description",
-        "url",
-        "salary",
-        "postedDate",
-        "metaTitle",
-        "metaDescription",
-        "tags"
+        "source",
+        "link",
+        "posted_at",
+        "is_active"
       ]
     },
     "Tender": {
@@ -159,21 +121,6 @@
           "type": "string",
           "description": "The closing date for submitting the tender.",
           "format": "date-time"
-        },
-        "metaTitle": {
-          "type": "string",
-          "description": "Meta title for SEO optimization."
-        },
-        "metaDescription": {
-          "type": "string",
-          "description": "Meta description for SEO optimization."
-        },
-        "tags": {
-          "type": "array",
-          "description": "Relevant tags for the tender.",
-          "items": {
-            "type": "string"
-          }
         }
       },
       "required": [
@@ -181,28 +128,44 @@
         "organization",
         "description",
         "url",
-        "closingDate",
-        "metaTitle",
-        "metaDescription",
-        "tags"
+        "closingDate"
       ]
     },
-    "AdminSettings": {
+    "Ad": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "AdminSettings",
+      "title": "Ad",
       "type": "object",
-      "description": "Represents the configuration settings controlled by the administrator.",
+      "description": "Represents an advertisement request submitted by a user.",
       "properties": {
-        "automationActive": {
-          "type": "boolean",
-          "description": "A kill switch to globally enable or disable the automated processes (news, jobs, tenders). True to enable, false to disable."
+        "businessName": {
+          "type": "string",
+          "description": "The name of the business submitting the ad."
         },
-        "plagiarismThreshold": {
-          "type": "number",
-          "description": "The plagiarism score threshold. If a scraped content's plagiarism score exceeds this value, it will be discarded and rewritten."
+        "paymentId": {
+          "type": "string",
+          "description": "The payment transaction ID for the ad placement."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "active",
+            "rejected"
+          ],
+          "description": "The current status of the ad request."
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the ad was submitted."
         }
       },
-      "required": []
+      "required": [
+        "businessName",
+        "paymentId",
+        "status",
+        "submittedAt"
+      ]
     }
   },
   "auth": {
@@ -212,29 +175,29 @@
     ]
   },
   "firestore": {
-    "/news_articles/{newsArticleId}": {
+    "/news/{newsId}": {
       "schema": {
         "$ref": "#/entities/NewsArticle"
       },
-      "description": "Stores news articles. Includes fields like 'region', 'title', 'content', 'urlSlug', 'metaTitle', 'metaDescription', 'tags', 'imageUrl', 'imageAltText', and 'publishedAt'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes."
+      "description": "Stores news articles. Includes fields like 'title', 'headline_hi', 'summary', 'category', 'region', 'link', and 'timestamp'."
     },
-    "/job_postings/{jobPostingId}": {
+    "/jobs/{jobId}": {
       "schema": {
         "$ref": "#/entities/JobPosting"
       },
-      "description": "Stores job postings. Includes fields like 'region', 'title', 'company', 'location', 'description', 'url', 'salary', 'postedDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes."
+      "description": "Stores job postings. Includes fields like 'title', 'company', 'source', 'link', 'posted_at', and 'is_active'."
     },
     "/tenders/{tenderId}": {
       "schema": {
         "$ref": "#/entities/Tender"
       },
-      "description": "Stores tenders. Includes fields like 'title', 'organization', 'description', 'url', 'closingDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes."
+      "description": "Stores tenders. Includes fields like 'title', 'organization', 'description', 'url', and 'closingDate'."
     },
-    "/admin_settings/config": {
+    "/ads/{adId}": {
       "schema": {
-        "$ref": "#/entities/AdminSettings"
+        "$ref": "#/entities/Ad"
       },
-      "description": "Stores global admin settings such as 'automationActive' and 'plagiarismThreshold'. This document controls the overall behavior of the automated system and can only be modified by authorized administrators."
+      "description": "Stores advertisement requests. Includes 'businessName', 'paymentId', 'status', and 'submittedAt'. Writable by admins only."
     }
   }
 }

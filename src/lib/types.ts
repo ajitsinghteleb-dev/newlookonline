@@ -22,6 +22,10 @@ export interface ContentItem {
   date: string; // ISO 8601 format
   source: string; // e.g., "Google Trends", "API XYZ"
   seo: SEO_Metadata;
+  // AI-generated fields
+  category?: string;
+  headline_hi?: string;
+  summary?: string;
   // Job specific
   companyName?: string;
   location?: string;

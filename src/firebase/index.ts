@@ -40,6 +40,14 @@ export function getSdks(firebaseApp: FirebaseApp) {
   };
 }
 
+
+const { firestore: db, auth } = initializeFirebase();
+const clientAuth = auth;
+const clientDb = db;
+
+export { clientDb as db, clientAuth as auth };
+
+
 export * from './provider';
 export * from './client-provider';
 export * from './firestore/use-collection';
