@@ -165,6 +165,11 @@
           "type": "string",
           "description": "The payment transaction ID (UTR) for the ad placement."
         },
+        "bannerUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the uploaded ad banner image."
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -183,6 +188,7 @@
       "required": [
         "businessName",
         "paymentUTR",
+        "bannerUrl",
         "status",
         "submittedAt"
       ]

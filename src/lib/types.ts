@@ -40,6 +40,7 @@ export interface Ad {
     id: string;
     businessName: string;
     paymentUTR: string;
+    bannerUrl: string;
     status: "pending" | "active" | "rejected";
     submittedAt: Timestamp;
 }
