@@ -34,14 +34,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function ListPage({ params }: Props) {
+export default async function ListPage({ params }: Props) {
   const type = params.type as ContentType;
 
   if (!VALID_TYPES.includes(type)) {
     notFound();
   }
 
-  const items = getContentByType(type);
+  const items = await getContentByType(type);
   const title = getTitle(type);
 
   return (

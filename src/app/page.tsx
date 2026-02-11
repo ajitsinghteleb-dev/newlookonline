@@ -1,13 +1,18 @@
+'use client';
+
 import { Newspaper, Briefcase, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useFirebase } from '@/firebase';
 
 import { getLatestContent } from '@/lib/data';
 import { ContentCard } from '@/components/content-card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import type { ContentItem } from '@/lib/types';
 import Image from 'next/image';
 import heroImage from '@/lib/hero-image.json';
+import { SeedDataButton } from '@/components/seed-data-button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function HeroSection() {
   return (
@@ -50,11 +55,13 @@ function ContentSection({
   icon,
   items,
   type,
+  isLoading,
 }: {
   title: string;
   icon: React.ReactNode;
   items: ContentItem[];
-  type: 'news' | 'jobs' | 'tenders';
+  type: 'news' | 'job' | 'tender';
+  isLoading: boolean;
 }) {
   return (
     <section className="py-12 md:py-16">
@@ -69,9 +76,17 @@ function ContentSection({
           </Button>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
-            <ContentCard key={item.id} item={item} />
-          ))}
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex flex-col space-y-3">
+                  <Skeleton className="h-[225px] w-full rounded-xl" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </div>
+              ))
+            : items.map((item) => <ContentCard key={item.id} item={item} />)}
         </div>
       </div>
     </section>
@@ -79,31 +94,56 @@ function ContentSection({
 }
 
 export default function HomePage() {
-  const { news, jobs, tenders } = getLatestContent(3);
+  const { firestore } = useFirebase();
+  const [content, setContent] = useState<{
+    news: ContentItem[];
+    jobs: ContentItem[];
+    tenders: ContentItem[];
+  }>({ news: [], jobs: [], tenders: [] });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (firestore) {
+      const fetchContent = async () => {
+        setIsLoading(true);
+        const latestContent = await getLatestContent(firestore, 3);
+        setContent(latestContent);
+        setIsLoading(false);
+      };
+      fetchContent();
+    }
+  }, [firestore]);
 
   return (
     <div>
       <HeroSection />
 
+      <div className="container px-4 md:px-6 my-4">
+        <SeedDataButton />
+      </div>
+
       <ContentSection
         title="Latest News"
         icon={<Newspaper className="h-8 w-8 text-primary" />}
-        items={news}
+        items={content.news}
         type="news"
+        isLoading={isLoading}
       />
 
       <ContentSection
         title="Featured Jobs"
         icon={<Briefcase className="h-8 w-8 text-primary" />}
-        items={jobs}
+        items={content.jobs}
         type="jobs"
+        isLoading={isLoading}
       />
 
       <ContentSection
         title="New Tenders"
         icon={<FileText className="h-8 w-8 text-primary" />}
-        items={tenders}
-        type="tenders"
+        items={content.tenders}
+        type="tender"
+        isLoading={isLoading}
       />
     </div>
   );

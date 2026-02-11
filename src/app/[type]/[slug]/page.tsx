@@ -28,7 +28,7 @@ type Props = {
 const VALID_TYPES: ContentType[] = ['news', 'job', 'tender'];
 
 export async function generateStaticParams() {
-  const content = getAllContent();
+  const content = await getAllContent();
   return content.map((item) => ({
     type: item.type,
     slug: item.seo.url_slug,
@@ -44,7 +44,7 @@ export async function generateMetadata(
     return { title: 'Not Found' };
   }
 
-  const item = getItemBySlug(type as ContentType, slug);
+  const item = await getItemBySlug(type as ContentType, slug);
 
   if (!item) {
     return {
@@ -108,7 +108,7 @@ export default async function DetailPage({ params }: Props) {
     notFound();
   }
 
-  const item = getItemBySlug(type as ContentType, slug);
+  const item = await getItemBySlug(type as ContentType, slug);
 
   if (!item) {
     notFound();

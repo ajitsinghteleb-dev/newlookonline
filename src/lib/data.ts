@@ -1,15 +1,141 @@
-import { placeholderImages } from './placeholder-images.json';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  limit,
+  orderBy,
+  DocumentData,
+  doc,
+  getDoc,
+  Firestore,
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase-server';
 import type { ContentItem, ContentType, SEO_Metadata, Region } from './types';
-import { generateSEOMetadata } from '@/ai/flows/generate-seo-metadata';
+import { cache } from 'react';
 
 // This is a simplified in-memory "database".
 // In a real application, this would be a connection to Firestore,
 // and the AI-generated SEO data would be pre-populated by a Python script.
-let contentItems: ContentItem[] = [];
 
-// For demonstration, we'll generate SEO data on-the-fly for a few items.
-// This simulates the data that the Python backend would have already processed.
-const rawContent: Omit<ContentItem, 'seo' | 'id' | 'imageUrl' | 'imageHint' | 'date'>[] = [
+const getDb = cache(() => {
+  return db;
+});
+
+const COLLECTION_NAMES: Record<ContentType, string> = {
+  news: 'news_articles',
+  job: 'job_postings',
+  tender: 'tenders',
+};
+
+function docToContentItem(
+  doc: DocumentData,
+  type: ContentType
+): ContentItem {
+  const data = doc.data();
+  // This is a bit of a hack to make the data conform to the ContentItem type
+  // In a real app, you'd want to have a more robust data mapping layer.
+  return {
+    id: doc.id,
+    type: type,
+    region: data.region,
+    title: data.title,
+    description: data.metaDescription,
+    content: data.content,
+    imageUrl: data.imageUrl,
+    imageHint: '', // This should be stored in the DB as well
+    date: data.publishedAt || data.postedDate || data.closingDate,
+    source: data.source || '',
+    seo: {
+      meta_title: data.metaTitle,
+      meta_description: data.metaDescription,
+      tags: data.tags,
+      image_alt_text: data.imageAltText,
+      url_slug: data.urlSlug,
+      content_structure: data.content_structure,
+    },
+    // Job specific
+    companyName: data.company,
+    location: data.location,
+    salary: data.salary,
+    // Tender specific
+    tenderValue: data.tenderValue,
+    closingDate: data.closingDate,
+  };
+}
+
+// --- Data Access Functions ---
+
+export const getAllContent = cache(
+  async (type?: ContentType): Promise<ContentItem[]> => {
+    const db = getDb();
+    let typesToFetch: ContentType[] = type ? [type] : ['news', 'job', 'tender'];
+
+    const allContent: ContentItem[] = [];
+
+    for (const t of typesToFetch) {
+      const collectionName = COLLECTION_NAMES[t];
+      const q = query(collection(db, collectionName));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        allContent.push(docToContentItem(doc, t));
+      });
+    }
+
+    return allContent;
+  }
+);
+
+export const getContentByType = cache(
+  async (type: ContentType): Promise<ContentItem[]> => {
+    return getAllContent(type);
+  }
+);
+
+export const getItemBySlug = cache(
+  async (
+    type: ContentType,
+    slug: string
+  ): Promise<ContentItem | undefined> => {
+    const db = getDb();
+    const collectionName = COLLECTION_NAMES[type];
+    const q = query(
+      collection(db, collectionName),
+      where('urlSlug', '==', slug),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return undefined;
+    }
+
+    return docToContentItem(querySnapshot.docs[0], type);
+  }
+);
+
+export const getLatestContent = async (
+  db: Firestore,
+  count: number
+): Promise<{ news: ContentItem[]; jobs: ContentItem[]; tenders: ContentItem[] }> => {
+  const fetchLatest = async (type: ContentType, dateField: string) => {
+    const collectionName = COLLECTION_NAMES[type];
+    const q = query(collection(db, collectionName), orderBy(dateField, 'desc'), limit(count));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => docToContentItem(doc, type));
+  }
+
+  const [news, jobs, tenders] = await Promise.all([
+    fetchLatest('news', 'publishedAt'),
+    fetchLatest('job', 'postedDate'),
+    fetchLatest('tender', 'closingDate'),
+  ]);
+
+  return { news, jobs, tenders };
+};
+
+// Raw content for seeding
+export const rawContent: Omit<ContentItem, 'seo' | 'id' | 'imageUrl' | 'imageHint' | 'date'>[] = [
   {
     type: 'news',
     region: 'us',
@@ -66,73 +192,3 @@ const rawContent: Omit<ContentItem, 'seo' | 'id' | 'imageUrl' | 'imageHint' | 'd
     closingDate: '2025-01-15',
   }
 ];
-
-// Helper to simulate slug generation
-const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-
-async function initializeData() {
-  if (contentItems.length > 0) return;
-
-  console.log("Initializing mock data and generating SEO metadata...");
-
-  const tempItems: ContentItem[] = [];
-  let imageIndex = 0;
-
-  for (const item of rawContent) {
-    try {
-        // In a real app, this would be fetched from the DB, not generated on the fly.
-        const seo: SEO_Metadata = await generateSEOMetadata({
-            content: item.content,
-            contentType: item.type,
-        });
-
-        const image = placeholderImages[imageIndex % placeholderImages.length];
-        
-        tempItems.push({
-            ...item,
-            id: `${item.type}-${slugify(item.title)}`,
-            seo: seo,
-            imageUrl: image.imageUrl,
-            imageHint: image.imageHint,
-            date: new Date(Date.now() - imageIndex * 1000 * 60 * 60 * 24).toISOString(), // Stagger dates
-        });
-
-        imageIndex++;
-    } catch(e) {
-        console.error(`Failed to generate SEO for "${item.title}". Skipping item.`, e)
-    }
-  }
-  contentItems = tempItems;
-  console.log("Mock data initialization complete.");
-}
-
-// Ensure data is initialized before any export is used.
-// This is a top-level await, which is fine in modern Node.js modules.
-await initializeData();
-
-
-// --- Data Access Functions ---
-
-export function getAllContent(type?: ContentType) {
-  if (type) {
-    return contentItems.filter(item => item.type === type);
-  }
-  return contentItems;
-}
-
-export function getContentByType(type: ContentType) {
-    return contentItems.filter(item => item.type === type);
-}
-
-
-export function getItemBySlug(type: ContentType, slug: string): ContentItem | undefined {
-  return contentItems.find(item => item.type === type && item.seo.url_slug === slug);
-}
-
-export function getLatestContent(count: number) {
-  const news = contentItems.filter(i => i.type === 'news').slice(0, count);
-  const jobs = contentItems.filter(i => i.type === 'job').slice(0, count);
-  const tenders = contentItems.filter(i => i.type === 'tender').slice(0, count);
-  return { news, jobs, tenders };
-}

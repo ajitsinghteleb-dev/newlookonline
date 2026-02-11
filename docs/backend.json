@@ -6,10 +6,6 @@
       "type": "object",
       "description": "Represents a news article fetched and processed by the system.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the NewsArticle entity."
-        },
         "region": {
           "type": "string",
           "description": "The region the news article pertains to (e.g., US, IN, Global)."
@@ -56,7 +52,6 @@
         }
       },
       "required": [
-        "id",
         "region",
         "title",
         "content",
@@ -75,10 +70,6 @@
       "type": "object",
       "description": "Represents a job posting scraped from various job APIs.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the JobPosting entity."
-        },
         "region": {
           "type": "string",
           "description": "The region the job posting is relevant to (e.g., US, IN)."
@@ -129,7 +120,6 @@
         }
       },
       "required": [
-        "id",
         "region",
         "title",
         "company",
@@ -149,10 +139,6 @@
       "type": "object",
       "description": "Represents a tender opportunity scraped from open tender portals.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Tender entity."
-        },
         "title": {
           "type": "string",
           "description": "The title of the tender."
@@ -191,7 +177,6 @@
         }
       },
       "required": [
-        "id",
         "title",
         "organization",
         "description",
@@ -208,10 +193,6 @@
       "type": "object",
       "description": "Represents the configuration settings controlled by the administrator.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the AdminSettings entity. Should be 'config'."
-        },
         "automationActive": {
           "type": "boolean",
           "description": "A kill switch to globally enable or disable the automated processes (news, jobs, tenders). True to enable, false to disable."
@@ -221,9 +202,7 @@
           "description": "The plagiarism score threshold. If a scraped content's plagiarism score exceeds this value, it will be discarded and rewritten."
         }
       },
-      "required": [
-        "id"
-      ]
+      "required": []
     }
   },
   "auth": {
@@ -233,67 +212,29 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/news_articles/{newsArticleId}",
-        "definition": {
-          "entityName": "NewsArticle",
-          "schema": {
-            "$ref": "#/backend/entities/NewsArticle"
-          },
-          "description": "Stores news articles. Includes fields like 'region', 'title', 'content', 'urlSlug', 'metaTitle', 'metaDescription', 'tags', 'imageUrl', 'imageAltText', and 'publishedAt'.  This collection is globally accessible for reading, but write access is restricted to authorized backend processes.",
-          "params": [
-            {
-              "name": "newsArticleId",
-              "description": "Unique identifier for the news article."
-            }
-          ]
-        }
+    "/news_articles/{newsArticleId}": {
+      "schema": {
+        "$ref": "#/entities/NewsArticle"
       },
-      {
-        "path": "/job_postings/{jobPostingId}",
-        "definition": {
-          "entityName": "JobPosting",
-          "schema": {
-            "$ref": "#/backend/entities/JobPosting"
-          },
-          "description": "Stores job postings. Includes fields like 'region', 'title', 'company', 'location', 'description', 'url', 'salary', 'postedDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes.",
-          "params": [
-            {
-              "name": "jobPostingId",
-              "description": "Unique identifier for the job posting."
-            }
-          ]
-        }
+      "description": "Stores news articles. Includes fields like 'region', 'title', 'content', 'urlSlug', 'metaTitle', 'metaDescription', 'tags', 'imageUrl', 'imageAltText', and 'publishedAt'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes."
+    },
+    "/job_postings/{jobPostingId}": {
+      "schema": {
+        "$ref": "#/entities/JobPosting"
       },
-      {
-        "path": "/tenders/{tenderId}",
-        "definition": {
-          "entityName": "Tender",
-          "schema": {
-            "$ref": "#/backend/entities/Tender"
-          },
-          "description": "Stores tenders. Includes fields like 'title', 'organization', 'description', 'url', 'closingDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes.",
-          "params": [
-            {
-              "name": "tenderId",
-              "description": "Unique identifier for the tender."
-            }
-          ]
-        }
+      "description": "Stores job postings. Includes fields like 'region', 'title', 'company', 'location', 'description', 'url', 'salary', 'postedDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes."
+    },
+    "/tenders/{tenderId}": {
+      "schema": {
+        "$ref": "#/entities/Tender"
       },
-      {
-        "path": "/admin_settings/config",
-        "definition": {
-          "entityName": "AdminSettings",
-          "schema": {
-            "$ref": "#/backend/entities/AdminSettings"
-          },
-          "description": "Stores global admin settings such as 'automationActive' and 'plagiarismThreshold'. This document controls the overall behavior of the automated system and can only be modified by authorized administrators.",
-          "params": []
-        }
-      }
-    ],
-    "reasoning": "The Firestore data structure is designed to support a fully automated news, job, and tender aggregation portal with autonomous SEO, named LookOnline Global. The structure prioritizes authorization independence, clarity, and scalability. It uses structural segregation to ensure that each collection has a homogeneous security posture. Critically, it denormalizes authorization data to avoid `get()` calls in security rules. This design facilitates QAPs by segregating data based on type and region, allowing for secure list operations. The admin settings are stored in a dedicated document, allowing for a simple kill switch mechanism."
+      "description": "Stores tenders. Includes fields like 'title', 'organization', 'description', 'url', 'closingDate', 'metaTitle', 'metaDescription', and 'tags'. This collection is globally accessible for reading, but write access is restricted to authorized backend processes."
+    },
+    "/admin_settings/config": {
+      "schema": {
+        "$ref": "#/entities/AdminSettings"
+      },
+      "description": "Stores global admin settings such as 'automationActive' and 'plagiarismThreshold'. This document controls the overall behavior of the automated system and can only be modified by authorized administrators."
+    }
   }
 }
