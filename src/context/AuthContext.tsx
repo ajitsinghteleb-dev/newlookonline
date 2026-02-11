@@ -21,8 +21,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [userState.isUserLoading, userState.user, auth]);
 
-  // In a real app, this would check for a custom claim, e.g., user.customClaims.admin
-  const isAdmin = !!userState.user && !userState.user.isAnonymous;
+  // Admin access is restricted to a specific email address.
+  const isAdmin = !!userState.user && userState.user.email === 'ajitsingh0110@gmail.com';
 
   const value: AuthContextType = {
     ...userState,

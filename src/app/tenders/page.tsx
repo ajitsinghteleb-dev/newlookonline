@@ -2,11 +2,12 @@
 import { useEffect, useState } from 'react';
 import { db } from '@/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
-import Link from 'next/link';
 import { format } from 'date-fns';
+import type { Tender } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
 
 export default function TendersPage() {
-  const [tenders, setTenders] = useState<any[]>([]);
+  const [tenders, setTenders] = useState<Tender[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,7 +15,7 @@ export default function TendersPage() {
       try {
         const q = query(collection(db, "tenders"), orderBy("closingDate", "desc"));
         const snap = await getDocs(q);
-        setTenders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setTenders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tender)));
       } catch (error) {
         console.error("Error fetching tenders:", error);
       } finally {
@@ -35,13 +36,16 @@ export default function TendersPage() {
       {!loading && (
         <div className="grid gap-4">
           {tenders.map(tender => (
-            <div key={tender.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border dark:border-gray-700 flex justify-between items-center">
+            <div key={tender.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border dark:border-gray-700 flex justify-between items-start">
               <div>
                 <h2 className="text-xl font-bold dark:text-white">{tender.title}</h2>
                 <p className="text-gray-600 dark:text-gray-400">{tender.organization}</p>
+                {tender.tenderValue && (
+                    <Badge variant="outline" className="mt-2">Value: {tender.tenderValue}</Badge>
+                )}
                  <p className="text-sm text-red-600 dark:text-red-500 mt-2">Closing: {tender.closingDate ? format(new Date(tender.closingDate.seconds * 1000), 'PPP') : 'N/A'}</p>
               </div>
-              <a href={tender.url || '#'} target="_blank" rel="noopener noreferrer" className="bg-black dark:bg-white dark:text-black text-white px-4 py-2 rounded h-fit text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition">
+              <a href={tender.url || '#'} target="_blank" rel="noopener noreferrer" className="bg-black dark:bg-white dark:text-black text-white px-4 py-2 rounded h-fit text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition shrink-0 ml-4">
                 View
               </a>
             </div>

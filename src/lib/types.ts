@@ -1,36 +1,45 @@
-export type ContentType = 'news' | 'job' | 'tender';
-export type Region = 'us' | 'in' | 'gb' | 'global';
+import { Timestamp } from 'firebase/firestore';
 
-export type SEO_Metadata = {
-  meta_title: string;
-  meta_description: string;
-  tags: string[];
-  image_alt_text: string;
-  url_slug: string;
-  content_structure: string; // HTML string
-};
+export interface NewsArticle {
+    id: string;
+    title: string;
+    headline_hi: string;
+    summary: string;
+    summary_hi: string;
+    category: "World" | "Business" | "Tech" | "Politics" | "Sports" | "Entertainment" | "Other";
+    region: "IN" | "US" | "GLOBAL";
+    link: string;
+    timestamp: Timestamp;
+    status: "published" | "draft";
+    urlSlug: string;
+    credibilityScore: number;
+}
 
-export interface ContentItem {
-  id: string;
-  type: ContentType;
-  region: Region;
-  title: string;
-  description: string;
-  content: string; // Original content
-  imageUrl: string;
-  imageHint: string;
-  date: string; // ISO 8601 format
-  source: string; // e.g., "Google Trends", "API XYZ"
-  seo: SEO_Metadata;
-  // AI-generated fields
-  category?: string;
-  headline_hi?: string;
-  summary?: string;
-  // Job specific
-  companyName?: string;
-  location?: string;
-  salary?: string;
-  // Tender specific
-  tenderValue?: string;
-  closingDate?: string;
+export interface JobPosting {
+    id: string;
+    title: string;
+    company: string;
+    source: string;
+    link: string;
+    posted_at: Timestamp;
+    is_active: boolean;
+    skills?: string[];
+}
+
+export interface Tender {
+    id: string;
+    title: string;
+    organization: string;
+    description: string;
+    url: string;
+    closingDate: Timestamp;
+    tenderValue?: string;
+}
+
+export interface Ad {
+    id: string;
+    businessName: string;
+    paymentUTR: string;
+    status: "pending" | "active" | "rejected";
+    submittedAt: Timestamp;
 }

@@ -22,7 +22,9 @@ const ProcessNewsArticleOutputSchema = z.object({
     headline: z.string().describe('A catchy, rewritten headline for the article.'),
     headline_hi: z.string().describe('The rewritten headline, translated into Hindi.'),
     summary: z.string().describe('A 100-word summary of the article.'),
+    summary_hi: z.string().describe('The 100-word summary, translated into Hindi.'),
     url_slug: z.string().describe('A clean, SEO-friendly, English URL slug for the article.'),
+    credibilityScore: z.number().describe('A credibility score from 0.0 to 1.0 based on the source and content.'),
 });
 export type ProcessNewsArticleOutput = z.infer<typeof ProcessNewsArticleOutputSchema>;
 
@@ -41,8 +43,10 @@ const prompt = ai.definePrompt({
     1. Categorize the article into one of the following: "World", "Business", "Tech", "Politics", "Sports", "Entertainment", "Other".
     2. Rewrite the headline to be catchy, engaging, and SEO-friendly.
     3. Translate the new, rewritten headline into standard, formal Hindi.
-    4. Generate a concise and compelling summary of about 100 words.
-    5. Generate a clean, SEO-friendly, English URL slug for the article.
+    4. Generate a concise and compelling summary of about 100 words in English.
+    5. Translate the new English summary into standard, formal Hindi.
+    6. Generate a clean, SEO-friendly, English URL slug for the article.
+    7. Provide a credibility score from 0.0 (very untrustworthy) to 1.0 (very trustworthy) based on the likely reliability of the content.
 
     ORIGINAL SOURCE:
     Title: {{{title}}}

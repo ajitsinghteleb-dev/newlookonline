@@ -2,40 +2,19 @@
  * CORE PHILOSOPHY
  * This ruleset secures an automated content aggregation portal. The core security
  * model is to make content collections (news, jobs, tenders) globally readable
- * by any client, including unauthenticated users, while completely prohibiting
- * direct writes from any client. All data creation and modification for these
- * collections is expected to be performed by a trusted backend service using the
- * Firebase Admin SDK, which bypasses these security rules.
- *
- * DATA STRUCTURE
- * The data is organized into flat, top-level collections based on content type:
- * - /news/{newsId}
- * - /jobs/{jobId}
- * - /tenders/{tenderId}
- * A special collection, /admin_settings, contains a single document 'config'
- * for controlling the backend automation.
+ * by any client, while prohibiting direct client writes. Data is added by a
+ * trusted backend service. Ad creation is an exception, allowed by any authenticated
+ * user, but managed only by an admin.
  *
  * KEY SECURITY DECISIONS
- * - Public Read, No Client Write: The main content collections are public-read
- *   to serve the web portal. All client-side write operations are explicitly
- *   denied (`if false;`) to ensure data integrity, enforcing a backend-only
- *   write pattern.
- * - Admin-Only Configuration: Access to the `/admin_settings/config` document
- *   is strictly limited to authenticated users with an 'admin' custom claim
- *   on their auth token. This provides a secure way for administrators to manage
- *   system behavior (e.g., using a kill switch) without exposing settings.
- *
- * DENORMALIZATION FOR AUTHORIZATION
- * This ruleset uses Firebase Authentication Custom Claims for role-based access
- * control. An `admin: true` claim is denormalized onto an administrator's auth
- * token. This allows for simple, performant, and secure role checks (`isAdmin()`)
- * without needing to read any documents from Firestore for the authorization decision.
- *
- * STRUCTURAL SEGREGATION
- * The data model uses strong structural segregation. Publicly readable content
- * is kept in separate collections from the highly restricted administrative
- * settings. This separation creates a clear security boundary and simplifies the
- * rules for each path.
+ * - Public Read, Backend Write: Content collections are public-read. All
+ *   client-side write operations are denied (`allow write: if false;`) to
+ *   ensure data integrity.
+ * - Admin by Email: Access to administrative functions is restricted to a
+ *   specific email address ('ajitsingh0110@gmail.com'). This is a simple and
+ *   direct way to manage a single administrator without custom claims.
+ * - Authenticated Ad Submission: Any authenticated user can create an ad request,
+ *   which is then placed in a moderation queue readable only by the admin.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -46,12 +25,11 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
 
     /**
-     * Checks if the user has an 'admin' custom claim.
-     * To set a custom claim, use the Firebase Admin SDK on a trusted server:
-     * `admin.auth().setCustomUserClaims(uid, { admin: true });`
+     * Checks if the authenticated user's email matches the designated admin email.
+     * This is the primary mechanism for role-based access control in this app.
      */
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth != null && request.auth.token.email == 'ajitsingh0110@gmail.com';
     }
 
     // -------------------------------------------------------------------------
@@ -59,45 +37,33 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
 
     /**
-     * @description Allows any user, including unauthenticated ones, to read news
-     *   articles. All write operations are disabled to ensure data is only
-     *   added by the trusted backend service.
+     * @description Allows public read access to news articles. Writes are disabled.
      * @path /news/{newsId}
      */
     match /news/{newsId} {
       allow get: if true;
       allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow write: if false;
     }
 
     /**
-     * @description Allows any user, including unauthenticated ones, to read job
-     *   postings. All write operations are disabled to ensure data is only
-     *   added by the trusted backend service.
+     * @description Allows public read access to job postings. Writes are disabled.
      * @path /jobs/{jobId}
      */
     match /jobs/{jobId} {
       allow get: if true;
       allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow write: if false;
     }
 
     /**
-     * @description Allows any user, including unauthenticated ones, to read tenders.
-     *   All write operations are disabled to ensure data is only added by the
-     *   trusted backend service.
+     * @description Allows public read access to tenders. Writes are disabled.
      * @path /tenders/{tenderId}
      */
     match /tenders/{tenderId} {
       allow get: if true;
       allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow write: if false;
     }
 
     // -------------------------------------------------------------------------
@@ -105,30 +71,16 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
 
     /**
-     * @description Manages ad requests. Allows authenticated users to submit
-     *   ads, and only admins to read, approve (update), or delete them.
+     * @description Manages ad requests. Allows any authenticated user to create
+     *   an ad, but only the admin can view, approve, or delete them.
      * @path /ads/{adId}
      */
     match /ads/{adId} {
         allow get: if isAdmin();
         allow list: if isAdmin();
-        // Any authenticated user can create an ad request (e.g., from an /advertise page)
         allow create: if request.auth != null;
         allow update: if isAdmin();
         allow delete: if isAdmin();
-    }
-
-    /**
-     * @description Restricts all access to the global configuration document
-     *   to users with an administrative role, identified by a custom claim.
-     * @path /admin_settings/config
-     */
-    match /admin_settings/config {
-      allow get: if isAdmin();
-      allow list: if isAdmin();
-      allow create: if isAdmin();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
     }
   }
 }

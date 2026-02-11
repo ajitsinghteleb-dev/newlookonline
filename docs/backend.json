@@ -18,6 +18,10 @@
           "type": "string",
           "description": "A short summary of the news article."
         },
+        "summary_hi": {
+          "type": "string",
+          "description": "A short summary of the news article in Hindi."
+        },
         "category": {
           "type": "string",
           "description": "The category of the news article (e.g., World, Business, Tech)."
@@ -42,6 +46,10 @@
             "draft"
           ],
           "description": "The publication status of the article."
+        },
+        "credibilityScore": {
+            "type": "number",
+            "description": "A score from 0.0 to 1.0 indicating the perceived credibility of the news source/content."
         }
       },
       "required": [
@@ -51,7 +59,8 @@
         "region",
         "link",
         "timestamp",
-        "status"
+        "status",
+        "credibilityScore"
       ]
     },
     "JobPosting": {
@@ -84,6 +93,13 @@
         "is_active": {
           "type": "boolean",
           "description": "Whether the job posting is currently active."
+        },
+        "skills": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "A list of required skills for the job."
         }
       },
       "required": [
@@ -121,6 +137,10 @@
           "type": "string",
           "description": "The closing date for submitting the tender.",
           "format": "date-time"
+        },
+        "tenderValue": {
+            "type": "string",
+            "description": "The estimated value of the tender."
         }
       },
       "required": [
@@ -141,9 +161,9 @@
           "type": "string",
           "description": "The name of the business submitting the ad."
         },
-        "paymentId": {
+        "paymentUTR": {
           "type": "string",
-          "description": "The payment transaction ID for the ad placement."
+          "description": "The payment transaction ID (UTR) for the ad placement."
         },
         "status": {
           "type": "string",
@@ -162,7 +182,7 @@
       },
       "required": [
         "businessName",
-        "paymentId",
+        "paymentUTR",
         "status",
         "submittedAt"
       ]
@@ -197,7 +217,7 @@
       "schema": {
         "$ref": "#/entities/Ad"
       },
-      "description": "Stores advertisement requests. Includes 'businessName', 'paymentId', 'status', and 'submittedAt'. Writable by admins only."
+      "description": "Stores advertisement requests. Includes 'businessName', 'paymentUTR', 'status', and 'submittedAt'. Writable by admins only."
     }
   }
 }

@@ -61,12 +61,14 @@ export async function GET() {
                     title: processedData.headline,
                     headline_hi: processedData.headline_hi,
                     summary: processedData.summary,
+                    summary_hi: processedData.summary_hi,
                     category: processedData.category,
                     region: source.region,
                     link: entry.link,
                     timestamp: new Date(),
                     status: 'published',
                     urlSlug: processedData.url_slug,
+                    credibilityScore: processedData.credibilityScore,
                 };
 
                 await docRef.set(newArticle);
