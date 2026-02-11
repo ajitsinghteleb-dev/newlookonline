@@ -14,6 +14,7 @@ export interface NewsArticle {
     urlSlug: string;
     credibilityScore: number;
     hashtags: string[];
+    is_ai_generated?: boolean;
 }
 
 export interface JobPosting {

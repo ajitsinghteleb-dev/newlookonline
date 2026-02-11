@@ -71,6 +71,7 @@ export async function GET() {
                     urlSlug: processedData.url_slug,
                     credibilityScore: processedData.credibilityScore,
                     hashtags: processedData.hashtags || [],
+                    is_ai_generated: true,
                 };
 
                 await docRef.set(newArticle);
