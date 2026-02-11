@@ -14,8 +14,24 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
   const encodedTitle = encodeURIComponent(title);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(url);
-    toast({ title: 'Link copied to clipboard!' });
+    if (!navigator.clipboard) {
+      toast({
+        variant: 'destructive',
+        title: 'Clipboard not available',
+        description: 'Copying to clipboard is not supported in this browser.',
+      });
+      return;
+    }
+    navigator.clipboard.writeText(url).then(() => {
+      toast({ title: 'Link copied to clipboard!' });
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      toast({
+        variant: 'destructive',
+        title: 'Copy Failed',
+        description: 'Could not copy link to clipboard.',
+      });
+    });
   };
 
   return (

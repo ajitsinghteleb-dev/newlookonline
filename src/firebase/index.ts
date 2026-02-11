@@ -11,16 +11,19 @@ export function initializeFirebase() {
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
   if (typeof window !== 'undefined') {
-    // Initialize App Check on the client
-    try {
-        initializeAppCheck(app, {
-          // You must get a reCAPTCHA v3 site key from the Google Cloud console.
-          // In .env, set NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-          provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
-          isTokenAutoRefreshEnabled: true,
-        });
-    } catch (e) {
-        console.error("App Check initialization error", e);
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    // Only initialize App Check if the site key is provided
+    if (siteKey) {
+        try {
+            initializeAppCheck(app, {
+              provider: new ReCaptchaV3Provider(siteKey),
+              isTokenAutoRefreshEnabled: true,
+            });
+        } catch (e) {
+            console.error("App Check initialization error", e);
+        }
+    } else {
+        console.warn("Firebase App Check not initialized: NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set.");
     }
   }
   
