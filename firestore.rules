@@ -9,8 +9,8 @@
  *
  * DATA STRUCTURE
  * The data is organized into flat, top-level collections based on content type:
- * - /news_articles/{newsArticleId}
- * - /job_postings/{jobPostingId}
+ * - /news/{newsId}
+ * - /jobs/{jobId}
  * - /tenders/{tenderId}
  * A special collection, /admin_settings, contains a single document 'config'
  * for controlling the backend automation.
@@ -24,8 +24,6 @@
  *   is strictly limited to authenticated users with an 'admin' custom claim
  *   on their auth token. This provides a secure way for administrators to manage
  *   system behavior (e.g., using a kill switch) without exposing settings.
- * - No User Data: There are no user-specific collections or documents, simplifying
- *   the rules and eliminating concerns about user data privacy or ownership.
  *
  * DENORMALIZATION FOR AUTHORIZATION
  * This ruleset uses Firebase Authentication Custom Claims for role-based access
@@ -64,12 +62,9 @@ service cloud.firestore {
      * @description Allows any user, including unauthenticated ones, to read news
      *   articles. All write operations are disabled to ensure data is only
      *   added by the trusted backend service.
-     * @path /news_articles/{newsArticleId}
-     * @allow (get) An anonymous user can fetch a single news article.
-     * @deny (create) An authenticated user cannot create a new article document.
-     * @principle Public read access for content, with writes locked down to a trusted backend.
+     * @path /news/{newsId}
      */
-    match /news_articles/{newsArticleId} {
+    match /news/{newsId} {
       allow get: if true;
       allow list: if true;
       allow create: if false;
@@ -81,12 +76,9 @@ service cloud.firestore {
      * @description Allows any user, including unauthenticated ones, to read job
      *   postings. All write operations are disabled to ensure data is only
      *   added by the trusted backend service.
-     * @path /job_postings/{jobPostingId}
-     * @allow (list) Any client can query the collection of job postings.
-     * @deny (update) An authenticated user cannot modify an existing job posting.
-     * @principle Public read access for content, with writes locked down to a trusted backend.
+     * @path /jobs/{jobId}
      */
-    match /job_postings/{jobPostingId} {
+    match /jobs/{jobId} {
       allow get: if true;
       allow list: if true;
       allow create: if false;
@@ -99,9 +91,6 @@ service cloud.firestore {
      *   All write operations are disabled to ensure data is only added by the
      *   trusted backend service.
      * @path /tenders/{tenderId}
-     * @allow (get) An anonymous user can fetch a single tender document.
-     * @deny (delete) An authenticated user cannot delete a tender document.
-     * @principle Public read access for content, with writes locked down to a trusted backend.
      */
     match /tenders/{tenderId} {
       allow get: if true;
@@ -112,24 +101,34 @@ service cloud.firestore {
     }
 
     // -------------------------------------------------------------------------
-    // Administrative Settings (Admin-Only)
+    // Administrative Collections
     // -------------------------------------------------------------------------
+
+    /**
+     * @description Manages ad requests. Allows authenticated users to submit
+     *   ads, and only admins to read, approve (update), or delete them.
+     * @path /ads/{adId}
+     */
+    match /ads/{adId} {
+        allow get: if isAdmin();
+        allow list: if isAdmin();
+        // Any authenticated user can create an ad request (e.g., from an /advertise page)
+        allow create: if request.auth != null;
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+    }
 
     /**
      * @description Restricts all access to the global configuration document
      *   to users with an administrative role, identified by a custom claim.
      * @path /admin_settings/config
-     * @allow (update) An admin user (auth.token.admin == true) can update the config document.
-     * @deny (get) A regular signed-in user cannot read the configuration.
-     * @deny (update) A non-admin user cannot change the 'automationActive' flag.
-     * @principle Role-based access control using custom claims for sensitive settings.
      */
     match /admin_settings/config {
       allow get: if isAdmin();
       allow list: if isAdmin();
       allow create: if isAdmin();
-      allow update: if isAdmin() && resource != null;
-      allow delete: if isAdmin() && resource != null;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }
