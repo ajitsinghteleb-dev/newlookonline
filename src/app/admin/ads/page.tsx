@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { db } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, where } from 'firebase/firestore';
 import type { Ad } from '@/lib/types';
 import Image from 'next/image';
@@ -11,18 +11,20 @@ import { Check, X, ShieldAlert } from 'lucide-react';
 
 export default function AdminAdManager() {
   const { isAdmin } = useAuth();
+  const firestore = useFirestore();
   const [pendingAds, setPendingAds] = useState<Ad[]>([]);
 
   useEffect(() => {
-    if (!isAdmin) return;
-    const q = query(collection(db, "ads"), where("status", "==", "pending"), orderBy("submittedAt", "desc"));
+    if (!isAdmin || !firestore) return;
+    const q = query(collection(firestore, "ads"), where("status", "==", "pending"), orderBy("submittedAt", "desc"));
     const unsubscribe = onSnapshot(q, (snap) => setPendingAds(snap.docs.map(d => ({id: d.id, ...d.data()}) as Ad)));
     return () => unsubscribe();
-  }, [isAdmin]);
+  }, [isAdmin, firestore]);
 
   const setStatus = async (id: string, newStatus: "active" | "rejected") => {
+    if (!firestore) return;
     try {
-      await updateDoc(doc(db, "ads", id), { status: newStatus });
+      await updateDoc(doc(firestore, "ads", id), { status: newStatus });
     } catch (e) {
         console.error(`Error updating ad status: `, e);
     }

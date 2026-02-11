@@ -9,10 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirebaseApp } from '@/firebase';
+import { useUser, useFirebaseApp, useFirestore } from '@/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/firebase';
 import { Loader2, UploadCloud, QrCode } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -29,6 +28,7 @@ export default function AdvertisePage() {
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
   const app = useFirebaseApp();
+  const firestore = useFirestore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,7 +41,7 @@ export default function AdvertisePage() {
   });
 
   const onSubmit = async (data: AdFormValues) => {
-    if (!user) {
+    if (!user || !firestore) {
       toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to submit an ad.' });
       router.push('/login');
       return;
@@ -58,7 +58,7 @@ export default function AdvertisePage() {
       const bannerUrl = await getDownloadURL(uploadResult.ref);
 
       // 2. Create ad document in Firestore
-      await addDoc(collection(db, 'ads'), {
+      await addDoc(collection(firestore, 'ads'), {
         businessName: data.businessName,
         paymentUTR: data.paymentUTR,
         bannerUrl,

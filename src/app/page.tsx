@@ -1,16 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { db } from "@/firebase";
+import { useFirestore } from "@/firebase";
 import { collection, query, orderBy, onSnapshot, limit } from "firebase/firestore";
 import NewsCard from "@/components/NewsCard";
 import AdComponent from "@/components/AdComponent";
 
 export default function HomePage() {
+  const firestore = useFirestore();
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "news"), orderBy("timestamp", "desc"), limit(18)); // Fetching in multiples of 6 for ads
+    if (!firestore) return;
+    const q = query(collection(firestore, "news"), orderBy("timestamp", "desc"), limit(18)); // Fetching in multiples of 6 for ads
     const unsub = onSnapshot(q, (snap) => {
       setNews(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
@@ -19,7 +21,7 @@ export default function HomePage() {
       setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [firestore]);
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8">

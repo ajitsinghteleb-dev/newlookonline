@@ -1,7 +1,7 @@
 
 "use client";
 import { useEffect, useState } from 'react';
-import { db } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { format } from 'date-fns';
 import type { Tender } from '@/lib/types';
@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, IndianRupee, Search } from 'lucide-react';
 
 export default function TendersPage() {
+  const firestore = useFirestore();
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [filteredTenders, setFilteredTenders] = useState<Tender[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +27,9 @@ export default function TendersPage() {
 
   useEffect(() => {
     const fetchTenders = async () => {
+      if (!firestore) return;
       try {
-        const q = query(collection(db, "tenders"), orderBy("closingDate", "desc"));
+        const q = query(collection(firestore, "tenders"), orderBy("closingDate", "desc"));
         const snap = await getDocs(q);
         const tendersData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tender));
         setTenders(tendersData);
@@ -39,7 +41,7 @@ export default function TendersPage() {
       }
     };
     fetchTenders();
-  }, []);
+  }, [firestore]);
 
   useEffect(() => {
     const results = tenders.filter(tender =>

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { db } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -10,14 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { calculateJobMatch } from '@/lib/matching';
 
 export default function JobsPage() {
+  const firestore = useFirestore();
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [loading, setLoading] = useState(true);
   const [userSkills, setUserSkills] = useState('');
 
   useEffect(() => {
     const fetchJobs = async () => {
+      if (!firestore) return;
       try {
-        const q = query(collection(db, "jobs"), orderBy("posted_at", "desc"));
+        const q = query(collection(firestore, "jobs"), orderBy("posted_at", "desc"));
         const snap = await getDocs(q);
         setJobs(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as JobPosting)));
       } catch (error) {
@@ -27,7 +29,7 @@ export default function JobsPage() {
       }
     };
     fetchJobs();
-  }, []);
+  }, [firestore]);
 
   const userSkillList = userSkills.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
 
