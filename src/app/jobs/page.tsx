@@ -5,10 +5,13 @@ import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import type { JobPosting } from '@/lib/types';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userSkills, setUserSkills] = useState('');
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -25,35 +28,81 @@ export default function JobsPage() {
     fetchJobs();
   }, []);
 
+  const calculateMatch = (jobSkills: string[] | undefined): number => {
+    if (!jobSkills || jobSkills.length === 0 || !userSkills.trim()) {
+      return 0;
+    }
+    const userSkillSet = new Set(userSkills.toLowerCase().split(',').map(s => s.trim()).filter(Boolean));
+    if (userSkillSet.size === 0) return 0;
+    
+    const jobSkillSet = new Set(jobSkills.map(s => s.toLowerCase()));
+    
+    let matchCount = 0;
+    for (const skill of userSkillSet) {
+        if (jobSkillSet.has(skill)) {
+            matchCount++;
+        }
+    }
+    
+    return Math.round((matchCount / jobSkillSet.size) * 100);
+  };
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold dark:text-white">Job Board</h1>
-        <Link href="/employer" className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition">Post a Job</Link>
+        <Link href="/employer" className="bg-primary text-primary-foreground px-4 py-2 rounded text-sm hover:bg-primary/90 transition">Post a Job</Link>
       </div>
+
+      <Card className="mb-8 bg-card/50 border-dashed">
+        <CardHeader>
+          <CardTitle className="text-lg">Find Your Match</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-2 text-sm">Enter your skills to see how you match with job requirements.</p>
+          <Input 
+            placeholder="e.g., react, nodejs, python, sql" 
+            value={userSkills}
+            onChange={(e) => setUserSkills(e.target.value)}
+            className="bg-background"
+          />
+        </CardContent>
+      </Card>
       
       {loading && <div>Loading jobs...</div>}
 
       {!loading && (
         <div className="grid gap-4">
-          {jobs.map(job => (
-            <div key={job.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border dark:border-gray-700 flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-bold dark:text-white">{job.title}</h2>
-                <p className="text-gray-600 dark:text-gray-400">{job.company}</p>
-                {job.skills && job.skills.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {job.skills.map(skill => (
-                      <Badge key={skill} variant="secondary">{skill}</Badge>
-                    ))}
+          {jobs.map(job => {
+            const matchPercentage = calculateMatch(job.skills);
+            return (
+                <div key={job.id} className="bg-card p-6 rounded-lg shadow-md border flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-xl font-bold text-foreground">{job.title}</h2>
+                        {userSkills && (
+                            <Badge variant={matchPercentage > 70 ? 'default' : matchPercentage > 40 ? 'secondary' : 'outline'} className="text-base">
+                                {matchPercentage}% Match
+                            </Badge>
+                        )}
+                    </div>
+
+                    <p className="text-muted-foreground">{job.company}</p>
+                    {job.skills && job.skills.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {job.skills.map(skill => (
+                          <Badge key={skill} variant="secondary">{skill}</Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <a href={job.link || '#'} target="_blank" rel="noopener noreferrer" className="bg-black dark:bg-white dark:text-black text-white px-4 py-2 rounded h-fit text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition shrink-0 ml-4">
-                Apply
-              </a>
-            </div>
-          ))}
+                  <a href={job.link || '#'} target="_blank" rel="noopener noreferrer" className="bg-foreground text-background px-4 py-2 rounded h-fit text-sm font-medium hover:bg-foreground/80 transition shrink-0 ml-4">
+                    Apply
+                  </a>
+                </div>
+            )
+          })}
         </div>
       )}
     </div>
