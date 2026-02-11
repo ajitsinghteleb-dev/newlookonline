@@ -16,6 +16,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const storedLang = localStorage.getItem('app_lang');
     if (storedLang) {
       setLangState(storedLang);
+    } else {
+      // If no language is stored, detect from browser
+      const browserLang = navigator.language.split('-')[0];
+      if (browserLang === 'hi') {
+        setLangState('hi');
+      } else {
+        setLangState('en'); // Default to English
+      }
     }
   }, []);
 
