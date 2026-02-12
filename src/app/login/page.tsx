@@ -43,8 +43,7 @@ export default function LoginPage() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             toast({ title: "Login Successful!" });
-            const redirectUrl = searchParams.get('redirect') || '/admin';
-            router.push(redirectUrl);
+            // Redirection is handled by the useEffect hook
         } catch (e: any) {
             toast({ variant: "destructive", title: "Login Failed", description: "Invalid credentials. Please try again." });
         }
@@ -55,8 +54,7 @@ export default function LoginPage() {
         try {
             await signInWithPopup(auth, provider);
             toast({ title: "Login Successful!" });
-            const redirectUrl = searchParams.get('redirect') || '/admin';
-            router.push(redirectUrl);
+            // Redirection is handled by the useEffect hook
         } catch (e: any) {
             toast({ variant: "destructive", title: "Google Login Failed", description: e.message });
         }
