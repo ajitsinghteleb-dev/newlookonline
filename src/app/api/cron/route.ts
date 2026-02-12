@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 import { getFirestoreAdmin } from '@/lib/firebase-server';
 import { processNewsArticle } from '@/ai/flows/process-news-article';
+import { processJobPosting } from '@/ai/flows/process-job-posting';
 import { createHash } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -104,7 +105,7 @@ async function processNewsFeeds() {
 }
 
 /**
- * Scans and saves job postings.
+ * Scans, processes with AI, and saves job postings.
  */
 async function processJobFeeds() {
     const db = getFirestoreAdmin();
@@ -123,6 +124,13 @@ async function processJobFeeds() {
                 if ((await docRef.get()).exists) continue;
                 
                 console.log(`+ Processing Job: ${entry.title}`);
+
+                // AI-powered skill extraction
+                const processedData = await processJobPosting({
+                    title: entry.title || '',
+                    description: entry.contentSnippet || entry.content || '',
+                });
+                
                 await docRef.set({
                     id: docId,
                     title: entry.title,
@@ -131,7 +139,7 @@ async function processJobFeeds() {
                     link: entry.link,
                     posted_at: new Date(entry.pubDate || Date.now()),
                     is_active: true,
-                    skills: [], // Skill extraction can be a future enhancement
+                    skills: processedData?.skills || [], // Save extracted skills
                 });
                 results.added++;
             }
@@ -143,6 +151,7 @@ async function processJobFeeds() {
     console.log(`✅ Job Scan Complete. Added: ${results.added}, Scanned: ${results.scanned}, Errors: ${results.errors}`);
     return results;
 }
+
 
 /**
  * Scans and saves tender information.
