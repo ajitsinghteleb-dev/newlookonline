@@ -54,7 +54,7 @@ export default function TendersPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-black">Active <span className="text-red-600">Tenders</span></h1>
+        <h1 className="text-3xl font-black">Active <span className="text-primary">Tenders</span></h1>
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <Input 

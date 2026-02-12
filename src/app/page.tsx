@@ -27,7 +27,7 @@ export default function HomePage() {
     <div className="max-w-6xl mx-auto p-4 sm:p-8">
       <div className="flex justify-between items-center mb-10 border-b pb-6">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tighter">Look<span className="text-red-600">Online</span></h1>
+          <h1 className="text-4xl font-extrabold tracking-tighter">Look<span className="text-primary">Online</span></h1>
           <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mt-1">Verified AI News Portal</p>
         </div>
       </div>

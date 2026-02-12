@@ -10,7 +10,7 @@ export default function Navbar() {
     <nav className="border-b bg-background sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold">
-          Look<span className="text-red-600">Online</span>
+          Look<span className="text-primary">Online</span>
         </Link>
         
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
