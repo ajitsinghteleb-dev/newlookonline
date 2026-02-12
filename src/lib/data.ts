@@ -1,5 +1,5 @@
 import { getFirestoreAdmin } from '@/lib/firebase-server';
-import type { NewsArticle } from './types';
+import type { NewsArticle, JobPosting, Tender } from './types';
 
 export async function getAllContent(): Promise<{ type: string; url_slug: string; date: Date }[]> {
     const adminDb = getFirestoreAdmin();
@@ -33,5 +33,33 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
     } catch (error) {
         console.error(`Error fetching news by slug ${slug}:`, error);
         return null;
+    }
+}
+
+export async function getJobs(): Promise<JobPosting[]> {
+    const adminDb = getFirestoreAdmin();
+    try {
+        const snap = await adminDb.collection('jobs').orderBy('posted_at', 'desc').get();
+        if (snap.empty) {
+            return [];
+        }
+        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as JobPosting));
+    } catch (error) {
+        console.error(`Error fetching jobs:`, error);
+        return [];
+    }
+}
+
+export async function getTenders(): Promise<Tender[]> {
+    const adminDb = getFirestoreAdmin();
+    try {
+        const snap = await adminDb.collection('tenders').orderBy('closingDate', 'desc').get();
+        if (snap.empty) {
+            return [];
+        }
+        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tender));
+    } catch (error) {
+        console.error(`Error fetching tenders:`, error);
+        return [];
     }
 }
