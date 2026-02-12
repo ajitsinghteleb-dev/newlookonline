@@ -7,8 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildResume, BuildResumeOutput } from '@/ai/flows/build-resume';
 import { Loader2, Sparkles, Wand2, Download } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
-
 
 export default function ResumeBuilderPage() {
   const [experience, setExperience] = useState('');
@@ -38,8 +36,9 @@ export default function ResumeBuilderPage() {
     }
   };
   
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (resultsRef.current) {
+        const html2pdf = (await import('html2pdf.js')).default;
         const opt = {
             margin:       0.5,
             filename:     'lookonline-ai-resume.pdf',
