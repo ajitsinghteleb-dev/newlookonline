@@ -35,7 +35,7 @@ export default function AdminAdManager() {
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-8">
-        <ShieldAlert className="text-red-600" />
+        <ShieldAlert className="text-primary" />
         <h1 className="text-2xl font-black uppercase">Pending Ad <span className="text-gray-400">Verifications</span></h1>
       </div>
 
@@ -58,8 +58,8 @@ export default function AdminAdManager() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => setStatus(ad.id, "active")} size="icon" className="p-4 bg-green-600 text-white rounded-xl hover:bg-green-700 h-14 w-14"><Check /></Button>
-              <Button onClick={() => setStatus(ad.id, "rejected")} size="icon" variant="outline" className="p-4 text-red-600 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 h-14 w-14"><X /></Button>
+              <Button onClick={() => setStatus(ad.id, "active")} size="icon" className="p-4 h-14 w-14"><Check /></Button>
+              <Button onClick={() => setStatus(ad.id, "rejected")} size="icon" variant="destructive" className="p-4 h-14 w-14"><X /></Button>
             </div>
           </div>
         ))}

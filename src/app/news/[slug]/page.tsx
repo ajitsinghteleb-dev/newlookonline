@@ -57,7 +57,7 @@ export default async function NewsDetailPage({ params }: { params: { slug: strin
                 <div className="container mx-auto px-4 py-8 lg:py-16">
                     <article className="max-w-4xl mx-auto">
                         <header className="mb-8">
-                            <span className="text-sm font-bold uppercase text-red-600 tracking-wider">{news.category}</span>
+                            <span className="text-sm font-bold uppercase text-primary tracking-wider">{news.category}</span>
                             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground my-4">
                                 {news.title}
                             </h1>

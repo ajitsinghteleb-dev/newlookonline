@@ -88,7 +88,7 @@ export default function TendersPage() {
                       <p className="font-bold line-clamp-1">{tender.title}</p>
                       <p className="text-[10px] text-gray-400 mt-1">Ref: {tender.id.slice(0,8)}</p>
                     </TableCell>
-                    <TableCell className="font-medium text-gray-600 dark:text-gray-400">{tender.organization}</TableCell>
+                    <TableCell className="font-medium text-muted-foreground">{tender.organization}</TableCell>
                     <TableCell>
                         {tender.tenderValue ? (
                              <Badge variant="secondary" className="flex items-center gap-1 w-fit">
@@ -100,7 +100,7 @@ export default function TendersPage() {
                         {tender.closingDate ? format(new Date(tender.closingDate.seconds * 1000), 'PPP') : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button asChild size="sm" variant="ghost" className="text-red-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                      <Button asChild size="sm" variant="link">
                         <a href={tender.url || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                           View <ExternalLink size={14} />
                         </a>
