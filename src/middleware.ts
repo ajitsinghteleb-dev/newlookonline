@@ -1,5 +1,3 @@
-'use server';
-
 // This file is intentionally left blank to resolve a Next.js build issue.
 // It creates a minimal middleware that does nothing, satisfying the build system's
 // requirement for a middleware manifest without affecting the application's behavior.
