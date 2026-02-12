@@ -12,8 +12,15 @@ const parser = new Parser();
 
 // --- CONFIGURATION ---
 const NEWS_SOURCES = [
+    // Trending in India
     { url: "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en", region: "IN" },
-    { url: "https://news.google.com/rss/search?q=technology&hl=en-IN&gl=IN&ceid=IN:en", region: "GLOBAL" }
+    // Global Trending
+    { url: "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en", region: "GLOBAL" },
+    // Trusted Global Sources
+    { url: "http://feeds.bbci.co.uk/news/world/rss.xml", region: "GLOBAL" },
+    { url: "https://feeds.reuters.com/Reuters/worldNews", region: "GLOBAL" },
+    // Trusted Indian Source
+    { url: "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms", region: "IN" }
 ];
 
 const JOB_SOURCES = [
