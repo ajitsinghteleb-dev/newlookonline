@@ -35,7 +35,6 @@ export const metadata: Metadata = {
     title: APP_NAME,
     description: APP_DESCRIPTION,
   },
-  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
