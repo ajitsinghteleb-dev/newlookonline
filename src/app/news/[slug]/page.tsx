@@ -1,4 +1,4 @@
-import { getNewsBySlug, getAllNewsSlugs } from '@/lib/data';
+import { getNewsBySlug } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import ShareButtons from '@/components/ShareButtons';
@@ -6,14 +6,6 @@ import AdComponent from '@/components/AdComponent';
 import { NewsArticle } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
-
-// Generate static pages for all news articles at build time
-export async function generateStaticParams() {
-  const slugs = await getAllNewsSlugs();
-  return slugs.map(({ slug }) => ({
-    slug,
-  }));
-}
 
 // Generate dynamic SEO metadata for each news article
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {

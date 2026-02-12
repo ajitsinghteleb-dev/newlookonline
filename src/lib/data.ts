@@ -20,23 +20,6 @@ export async function getAllContent(): Promise<{ type: string; url_slug: string;
     return content;
 }
 
-export async function getAllNewsSlugs(): Promise<{ slug: string }[]> {
-    const adminDb = getFirestoreAdmin();
-    const slugs: { slug: string }[] = [];
-    try {
-        const newsSnap = await adminDb.collection('news').select('urlSlug').get();
-        newsSnap.forEach(doc => {
-            const data = doc.data();
-            if (data.urlSlug) {
-                slugs.push({ slug: data.urlSlug });
-            }
-        });
-    } catch (error) {
-        console.error("Error fetching news slugs:", error);
-    }
-    return slugs;
-}
-
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
     const adminDb = getFirestoreAdmin();
     try {
