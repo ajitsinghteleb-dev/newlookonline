@@ -5,3 +5,15 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+
+scheduler:
+  - schedule: '*/15 * * * *'
+    http:
+      path: '/api/cron'
+      method: 'GET'
+      timeout: 300s
+    timeZone: 'UTC'
+    retryConfig:
+      retryCount: 3
+      minBackoffDuration: 5s
+      maxDoublings: 5
