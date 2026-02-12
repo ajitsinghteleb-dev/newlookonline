@@ -1,27 +1,10 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { useFirestore } from "@/firebase";
-import { collection, query, orderBy, onSnapshot, limit } from "firebase/firestore";
+import { getNews } from '@/lib/data';
 import NewsCard from "@/components/NewsCard";
 import AdComponent from "@/components/AdComponent";
+import { NewsArticle } from '@/lib/types';
 
-export default function HomePage() {
-  const firestore = useFirestore();
-  const [news, setNews] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!firestore) return;
-    const q = query(collection(firestore, "news"), orderBy("timestamp", "desc"), limit(18)); // Fetching in multiples of 6 for ads
-    const unsub = onSnapshot(q, (snap) => {
-      setNews(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching news:", error);
-      setLoading(false);
-    });
-    return () => unsub();
-  }, [firestore]);
+export default async function HomePage() {
+  const news: NewsArticle[] = await getNews(18);
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8">
@@ -32,22 +15,9 @@ export default function HomePage() {
         </div>
       </div>
       
-      {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-card border border-border rounded-xl p-5 space-y-4 animate-pulse">
-            <div className="h-4 bg-muted rounded w-1/4"></div>
-            <div className="h-6 bg-muted rounded w-3/4"></div>
-            <div className="space-y-2">
-                <div className="h-4 bg-muted rounded"></div>
-                <div className="h-4 bg-muted rounded w-5/6"></div>
-            </div>
-            </div>
-        ))}
-        </div>
-      )}
-
-      {!loading && (
+      {news.length === 0 ? (
+        <div className="text-center py-20 text-gray-400 font-medium">No news articles found.</div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {news.flatMap((item, index) => {
             const items = [<NewsCard key={item.id} item={item} />];

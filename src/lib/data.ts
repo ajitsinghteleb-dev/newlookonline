@@ -20,6 +20,20 @@ export async function getAllContent(): Promise<{ type: string; url_slug: string;
     return content;
 }
 
+export async function getNews(limit: number = 18): Promise<NewsArticle[]> {
+    const adminDb = getFirestoreAdmin();
+    try {
+        const snap = await adminDb.collection('news').orderBy('timestamp', 'desc').limit(limit).get();
+        if (snap.empty) {
+            return [];
+        }
+        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
+    } catch (error) {
+        console.error(`Error fetching news:`, error);
+        return [];
+    }
+}
+
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
     const adminDb = getFirestoreAdmin();
     try {
