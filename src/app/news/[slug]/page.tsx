@@ -7,6 +7,8 @@ import { NewsArticle } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 // Generate dynamic SEO metadata for each news article
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const news = await getNewsBySlug(params.slug);

@@ -1,6 +1,8 @@
 import { getJobs } from '@/lib/data';
 import JobClientPage from './JobClientPage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function JobsPage() {
   const jobs = await getJobs();
 

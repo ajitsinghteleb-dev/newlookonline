@@ -2,6 +2,8 @@ import { getNews } from '@/lib/data';
 import NewsFeed from '@/components/NewsFeed';
 import { NewsArticle } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const news: NewsArticle[] = await getNews(18);
 

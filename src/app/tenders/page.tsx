@@ -1,6 +1,8 @@
 import { getTenders } from '@/lib/data';
 import TenderClientPage from './TenderClientPage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function TendersPage() {
   const tenders = await getTenders();
 
