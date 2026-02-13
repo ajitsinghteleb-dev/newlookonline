@@ -1,6 +1,5 @@
 import { getNews } from '@/lib/data';
-import NewsCard from "@/components/NewsCard";
-import AdComponent from "@/components/AdComponent";
+import NewsFeed from '@/components/NewsFeed';
 import { NewsArticle } from '@/lib/types';
 
 export default async function HomePage() {
@@ -15,23 +14,7 @@ export default async function HomePage() {
         </div>
       </div>
       
-      {news.length === 0 ? (
-        <div className="text-center py-20 text-gray-400 font-medium">No news articles found.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {news.flatMap((item, index) => {
-            const items = [<NewsCard key={item.id} item={item} />];
-            if ((index + 1) % 6 === 0) {
-              items.push(
-                <div key={`ad-${index}`} className="lg:col-span-3 md:col-span-2 col-span-1">
-                  <AdComponent />
-                </div>
-              );
-            }
-            return items;
-          })}
-        </div>
-      )}
+      <NewsFeed initialNews={news} />
     </div>
   );
 }
